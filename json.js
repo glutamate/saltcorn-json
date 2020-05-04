@@ -15,7 +15,7 @@ const json = {
             id: `input${text(nm)}`,
             rows: 10
           },
-          text(v) || ""
+          text(JSON.stringify(v)) || ""
         )
     }
   },
