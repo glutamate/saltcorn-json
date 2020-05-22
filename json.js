@@ -1,4 +1,4 @@
-const { textarea, text, code, pre } = require("saltcorn-markup/tags");
+const { textarea, text, code, pre } = require("@saltcorn/markup/tags");
 
 const json = {
   name: "JSON",
