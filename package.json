@@ -1,10 +1,10 @@
 {
-  "name": "saltcorn-json",
+  "name": "@saltcorn/json",
   "version": "0.0.1",
   "description": "JSON field plugin",
   "main": "json.js",
   "dependencies": {
-    "saltcorn-markup": "^0.0.1"
+    "@saltcorn/markup": "^0.0.1"
   },
   "author": "Tom Nielsen",
   "license": "MIT"
