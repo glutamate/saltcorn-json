@@ -6,7 +6,11 @@ const json = {
   fieldviews: {
     show: {
       isEdit: false,
-      run: v => pre({ class: "wsprewrap" }, code(JSON.stringify(v)))
+      run: (v) => pre({ class: "wsprewrap" }, code(JSON.stringify(v))),
+    },
+    pretty: {
+      isEdit: false,
+      run: (v) => pre({ class: "wsprewrap" }, code(JSON.stringify(v, null, 2))),
     },
     edit: {
       isEdit: true,
@@ -16,13 +20,13 @@ const json = {
             class: ["form-control", cls],
             name: text(nm),
             id: `input${text(nm)}`,
-            rows: 10
+            rows: 10,
           },
           text(JSON.stringify(v)) || ""
-        )
-    }
+        ),
+    },
   },
-  read: v => {
+  read: (v) => {
     switch (typeof v) {
       case "string":
         try {
@@ -33,7 +37,7 @@ const json = {
       default:
         return v;
     }
-  }
+  },
 };
 
 module.exports = { sc_plugin_api_version: 1, types: [json] };
