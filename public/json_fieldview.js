@@ -16,6 +16,7 @@ function jsonTableAddRow(nm) {
   <tr>
     <td><input type="text" class="json_key" onchange="jsonTableEdit('${nm}')" value=""></td>
     <td><input type="text" class="json_value" onchange="jsonTableEdit('${nm}')" value=""></td>
+    <td><i class="fas fa-times" onclick="jsonTableDeleteRow('${nm}', this)"></i></td>
   </tr>
   `);
 }
