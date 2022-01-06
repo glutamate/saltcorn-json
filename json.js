@@ -10,6 +10,7 @@ const {
   input,
   i,
   button,
+  text_attr,
 } = require("@saltcorn/markup/tags");
 
 const json = {
@@ -19,6 +20,26 @@ const json = {
     show: {
       isEdit: false,
       run: (v) => pre({ class: "wsprewrap" }, code(JSON.stringify(v))),
+    },
+    subfield: {
+      isEdit: false,
+      configFields: [
+        {
+          name: "key",
+          label: "Key",
+          type: "String",
+        },
+      ],
+      run: (v, req, options) => {
+        if (
+          options &&
+          options.key &&
+          v &&
+          typeof v[options.key] !== "undefined"
+        )
+          return text_attr(v[options.key]);
+        else return "";
+      },
     },
     pretty: {
       isEdit: false,
