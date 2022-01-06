@@ -12,6 +12,8 @@ const {
   button,
   text_attr,
 } = require("@saltcorn/markup/tags");
+const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
+const { features } = require("@saltcorn/data/db/state");
 
 const json = {
   name: "JSON",
@@ -123,6 +125,31 @@ const json = {
         ),
     },
   },
+  attributes:
+    features && features.fieldrepeats_in_field_attributes
+      ? [
+          { name: "hasSchema", label: "Has Schema", type: "Bool" },
+          new FieldRepeat({
+            name: "schema",
+            label: "Schema",
+            fields: [
+              { name: "key", label: "Key", type: "String" },
+              {
+                name: "type",
+                label: "Type",
+                type: "String",
+                attributes: { options: ["String", "Integer", "Float", "Bool"] },
+              },
+              {
+                name: "units",
+                label: "Units",
+                type: "String",
+                showIf: { type: "Float" },
+              },
+            ],
+          }),
+        ]
+      : [],
   read: (v) => {
     switch (typeof v) {
       case "string":
