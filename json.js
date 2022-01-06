@@ -68,6 +68,7 @@ const json = {
               td(
                 input({
                   type: "text",
+                  class: "json_key",
                   onChange: `jsonTableEdit('${text(nm)}')`,
                   value: k,
                 })
@@ -75,6 +76,7 @@ const json = {
               td(
                 input({
                   type: "text",
+                  class: "json_value",
                   onChange: `jsonTableEdit('${text(nm)}')`,
                   value: v,
                 })
@@ -98,4 +100,14 @@ const json = {
   },
 };
 
-module.exports = { sc_plugin_api_version: 1, types: [json] };
+module.exports = {
+  sc_plugin_api_version: 1,
+  types: [json],
+  plugin_name: "json",
+
+  headers: [
+    {
+      script: "/plugins/public/json/json_fieldview.js",
+    },
+  ],
+};
