@@ -50,7 +50,6 @@ const json = {
     show_table: {
       isEdit: false,
       run: (v) => {
-        console.log({ v });
         return typeof v !== "object" || !v
           ? ""
           : table(
