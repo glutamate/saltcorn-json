@@ -8,6 +8,8 @@ const {
   code,
   pre,
   input,
+  i,
+  button,
 } = require("@saltcorn/markup/tags");
 
 const json = {
@@ -80,9 +82,23 @@ const json = {
                   onChange: `jsonTableEdit('${text(nm)}')`,
                   value: v,
                 })
+              ),
+              td(
+                i({
+                  class: "fas fa-times",
+                  onClick: `jsonTableDeleteRow('${text(nm)}', this)`,
+                })
               )
             )
           )
+        ) +
+        button(
+          {
+            class: "btn btn-primary btn-sm",
+            type: "button",
+            onClick: `jsonTableAddRow('${text(nm)}')`,
+          },
+          "Add entry"
         ),
     },
   },

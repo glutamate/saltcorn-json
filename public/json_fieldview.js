@@ -10,3 +10,17 @@ function jsonTableEdit(nm) {
   const s = JSON.stringify(obj);
   $(`#input${nm}`).val(s);
 }
+
+function jsonTableAddRow(nm) {
+  $(`#table-edit-${nm}`).append(`
+  <tr>
+    <td><input type="text" class="json_key" onchange="jsonTableEdit('${nm}')" value=""></td>
+    <td><input type="text" class="json_value" onchange="jsonTableEdit('${nm}')" value=""></td>
+  </tr>
+  `);
+}
+
+function jsonTableDeleteRow(nm, that) {
+  $(that).closest("tr").remove();
+  jsonTableEdit(nm);
+}
