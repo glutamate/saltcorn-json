@@ -1,4 +1,13 @@
-const { textarea, text, code, pre } = require("@saltcorn/markup/tags");
+const {
+  textarea,
+  text,
+  table,
+  th,
+  tr,
+  td,
+  code,
+  pre,
+} = require("@saltcorn/markup/tags");
 
 const json = {
   name: "JSON",
@@ -11,6 +20,16 @@ const json = {
     pretty: {
       isEdit: false,
       run: (v) => pre({ class: "wsprewrap" }, code(JSON.stringify(v, null, 2))),
+    },
+    show_table: {
+      isEdit: false,
+      run: (v) =>
+        typeof v !== "object"
+          ? ""
+          : table(
+              { class: "table table-sm" },
+              Object.entries(v).map(([k, v]) => tr(th(k), td(v)))
+            ),
     },
     edit: {
       isEdit: true,
