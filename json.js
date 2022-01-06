@@ -7,6 +7,7 @@ const {
   td,
   code,
   pre,
+  input,
 } = require("@saltcorn/markup/tags");
 
 const json = {
@@ -23,13 +24,15 @@ const json = {
     },
     show_table: {
       isEdit: false,
-      run: (v) =>
-        typeof v !== "object"
+      run: (v) => {
+        console.log({ v });
+        return typeof v !== "object" || !v
           ? ""
           : table(
               { class: "table table-sm" },
               Object.entries(v).map(([k, v]) => tr(th(k), td(v)))
-            ),
+            );
+      },
     },
     edit: {
       isEdit: true,
@@ -42,6 +45,42 @@ const json = {
             rows: 10,
           },
           text(JSON.stringify(v)) || ""
+        ),
+    },
+    edit_table: {
+      isEdit: true,
+      run: (nm, v, attrs, cls) =>
+        textarea(
+          {
+            class: "d-none",
+            name: text(nm),
+            id: `input${text(nm)}`,
+          },
+          text(JSON.stringify(v)) || ""
+        ) +
+        table(
+          {
+            class: "table table-sm json-table-edit",
+            id: `table-edit-${text(nm)}`,
+          },
+          Object.entries(v || {}).map(([k, v]) =>
+            tr(
+              td(
+                input({
+                  type: "text",
+                  onChange: `jsonTableEdit('${text(nm)}')`,
+                  value: k,
+                })
+              ),
+              td(
+                input({
+                  type: "text",
+                  onChange: `jsonTableEdit('${text(nm)}')`,
+                  value: v,
+                })
+              )
+            )
+          )
         ),
     },
   },
