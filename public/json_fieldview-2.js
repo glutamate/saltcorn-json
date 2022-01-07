@@ -11,7 +11,13 @@ function jsonTableEdit(nm) {
   $(`#table-edit-${nm} tr`).each(function (i, row) {
     // reference all the stuff you need first
     const $row = $(row);
-    const k = $row.find("input.json_key,select.json_key").val();
+    let k = $row.find("input.json_key,select.json_key").val();
+    if (k === "Other...") {
+      k = $row.find("input.json_key_other").val();
+      $row.find("input.json_key_other").attr("type", "text");
+    } else {
+      $row.find("input.json_key_other").attr("type", "hidden");
+    }
     const velem = $row.find("input.json_value");
     if (schemaMap && schemaMap[k] && schemaMap[k].type === "Bool") {
       obj[k] = velem.prop("checked");
