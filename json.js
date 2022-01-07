@@ -76,7 +76,8 @@ const json = {
     edit_table: {
       isEdit: true,
       run: (nm, v, attrs, cls) => {
-        console.log(attrs);
+        //console.log(attrs);
+        const hasSchema = attrs && attrs.hasSchema && attrs.schema;
         return (
           textarea(
             {
@@ -90,11 +91,14 @@ const json = {
             {
               class: "table table-sm json-table-edit",
               id: `table-edit-${text(nm)}`,
+              "data-schama-keys": hasSchema
+                ? attrs.schema.map(({ key }) => key).join(",")
+                : undefined,
             },
             Object.entries(v || {}).map(([k, v]) =>
               tr(
                 td(
-                  attrs && attrs.hasSchema && attrs.schema
+                  hasSchema
                     ? select(
                         {
                           class: "json_key",
