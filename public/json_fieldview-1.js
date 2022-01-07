@@ -1,3 +1,9 @@
+function getSchemaMap(nm) {
+  const s = $(`#table-edit-${nm}`).attr("data-schema-map");
+  if (s) return JSON.parse(decodeURIComponent(s));
+  else return false;
+}
+
 function jsonTableEdit(nm) {
   const obj = {};
   $(`#table-edit-${nm} tr`).each(function (i, row) {
@@ -12,11 +18,13 @@ function jsonTableEdit(nm) {
 }
 
 function jsonTableAddRow(nm) {
-  let schemaKeys = $(`#table-edit-${nm}`).attr("data-schama-keys");
-  if (schemaKeys) schemaKeys = schemaKeys.split(",");
-  const keyInput = schemaKeys
+  const schemaMap = getSchemaMap(nm);
+
+  const keyInput = schemaMap
     ? `<select class="json_key" onchange="jsonTableEdit('${nm}')">
-        ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
+        ${Object.keys(schemaMap)
+          .map((k) => `<option>${k}</option>`)
+          .join("")}
        </select>`
     : `<input type="text" class="json_key" onchange="jsonTableEdit('${nm}')" value="">`;
   $(`#table-edit-${nm}`).append(`
