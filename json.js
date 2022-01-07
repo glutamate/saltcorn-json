@@ -128,7 +128,7 @@ const json = {
                         (attrs.allowUserDefined
                           ? input({
                               type: schemaKeys.includes(k) ? "hidden" : "text",
-                              class: "json_key_other",
+                              class: "json_key_other d-block",
                               onChange: `jsonTableEdit('${text(nm)}')`,
                               value: k,
                             })
