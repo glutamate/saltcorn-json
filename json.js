@@ -16,6 +16,7 @@ const {
 } = require("@saltcorn/markup/tags");
 const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
 const { features } = require("@saltcorn/data/db/state");
+const { int, float } = require("@saltcorn/data/base-plugin/types");
 
 const json = {
   name: "JSON",
@@ -171,16 +172,36 @@ const json = {
           }),
         ]
       : [],
-  read: (v) => {
+  read: (v, attrs) => {
+    const alignSchema = (o) => {
+      if (!attrs || !attrs.hasSchema) return o;
+      (attrs.schema || []).map(({ key, type }) => {
+        switch (type) {
+          case "Integer":
+            o[key] = Math.round(+o[key]);
+            break;
+          case "Float":
+            o[key] = +o[key];
+            break;
+          case "Bool":
+            if (o[key] === "false") o[key] = false;
+            else o[key] = !!o[key];
+            break;
+          default:
+            break;
+        }
+      });
+      return o;
+    };
     switch (typeof v) {
       case "string":
         try {
-          return JSON.parse(v);
+          return alignSchema(JSON.parse(v));
         } catch {
           return undefined;
         }
       default:
-        return v;
+        return alignSchema(v);
     }
   },
 };
