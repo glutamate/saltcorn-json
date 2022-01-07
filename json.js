@@ -57,7 +57,9 @@ const json = {
           ? ""
           : table(
               { class: "table table-sm" },
-              Object.entries(v).map(([k, v]) => tr(th(k), td(v)))
+              Object.entries(v).map(([k, v]) =>
+                tr(th(k), td(v === false ? "false" : text(v)))
+              )
             );
       },
     },
