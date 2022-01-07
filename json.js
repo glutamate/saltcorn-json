@@ -11,7 +11,11 @@ const {
   i,
   button,
   text_attr,
+  select,
+  option,
 } = require("@saltcorn/markup/tags");
+const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
+const { features } = require("@saltcorn/data/db/state");
 
 const json = {
   name: "JSON",
@@ -48,7 +52,6 @@ const json = {
     show_table: {
       isEdit: false,
       run: (v) => {
-        console.log({ v });
         return typeof v !== "object" || !v
           ? ""
           : table(
@@ -72,57 +75,102 @@ const json = {
     },
     edit_table: {
       isEdit: true,
-      run: (nm, v, attrs, cls) =>
-        textarea(
-          {
-            class: "d-none",
-            name: text(nm),
-            id: `input${text(nm)}`,
-          },
-          text(JSON.stringify(v)) || ""
-        ) +
-        table(
-          {
-            class: "table table-sm json-table-edit",
-            id: `table-edit-${text(nm)}`,
-          },
-          Object.entries(v || {}).map(([k, v]) =>
-            tr(
-              td(
-                input({
-                  type: "text",
-                  class: "json_key",
-                  onChange: `jsonTableEdit('${text(nm)}')`,
-                  value: k,
-                })
-              ),
-              td(
-                input({
-                  type: "text",
-                  class: "json_value",
-                  onChange: `jsonTableEdit('${text(nm)}')`,
-                  value: v,
-                })
-              ),
-              td(
-                i({
-                  class: "fas fa-times",
-                  onClick: `jsonTableDeleteRow('${text(nm)}', this)`,
-                })
+      run: (nm, v, attrs, cls) => {
+        //console.log(attrs);
+        const hasSchema = attrs && attrs.hasSchema && attrs.schema;
+        return (
+          textarea(
+            {
+              class: "d-none",
+              name: text(nm),
+              id: `input${text(nm)}`,
+            },
+            text(JSON.stringify(v)) || ""
+          ) +
+          table(
+            {
+              class: "table table-sm json-table-edit",
+              id: `table-edit-${text(nm)}`,
+              "data-schama-keys": hasSchema
+                ? attrs.schema.map(({ key }) => key).join(",")
+                : undefined,
+            },
+            Object.entries(v || {}).map(([k, v]) =>
+              tr(
+                td(
+                  hasSchema
+                    ? select(
+                        {
+                          class: "json_key",
+                          onChange: `jsonTableEdit('${text(nm)}')`,
+                        },
+                        attrs.schema.map(({ key }) =>
+                          option({ selected: key === k }, key)
+                        )
+                      )
+                    : input({
+                        type: "text",
+                        class: "json_key",
+                        onChange: `jsonTableEdit('${text(nm)}')`,
+                        value: k,
+                      })
+                ),
+                td(
+                  input({
+                    type: "text",
+                    class: "json_value",
+                    onChange: `jsonTableEdit('${text(nm)}')`,
+                    value: v,
+                  })
+                ),
+                td(
+                  i({
+                    class: "fas fa-times",
+                    onClick: `jsonTableDeleteRow('${text(nm)}', this)`,
+                  })
+                )
               )
             )
+          ) +
+          button(
+            {
+              class: "btn btn-primary btn-sm",
+              type: "button",
+              onClick: `jsonTableAddRow('${text(nm)}')`,
+            },
+            "Add entry"
           )
-        ) +
-        button(
-          {
-            class: "btn btn-primary btn-sm",
-            type: "button",
-            onClick: `jsonTableAddRow('${text(nm)}')`,
-          },
-          "Add entry"
-        ),
+        );
+      },
     },
   },
+  attributes:
+    features && features.fieldrepeats_in_field_attributes
+      ? [
+          { name: "hasSchema", label: "Has Schema", type: "Bool" },
+          new FieldRepeat({
+            name: "schema",
+            label: "Schema",
+            showIf: { hasSchema: true },
+            fields: [
+              { name: "key", label: "Key", type: "String" },
+              {
+                name: "type",
+                label: "Type",
+                type: "String",
+                required: true,
+                attributes: { options: ["String", "Integer", "Float", "Bool"] },
+              },
+              {
+                name: "units",
+                label: "Units",
+                type: "String",
+                showIf: { type: "Float" },
+              },
+            ],
+          }),
+        ]
+      : [],
   read: (v) => {
     switch (typeof v) {
       case "string":
