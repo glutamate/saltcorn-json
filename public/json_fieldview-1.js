@@ -5,12 +5,17 @@ function getSchemaMap(nm) {
 }
 
 function jsonTableEdit(nm) {
+  const schemaMap = getSchemaMap(nm);
+
   const obj = {};
   $(`#table-edit-${nm} tr`).each(function (i, row) {
     // reference all the stuff you need first
     const $row = $(row);
     const k = $row.find("input.json_key,select.json_key").val();
-    const v = $row.find("input.json_value").val();
+    const v =
+      schemaMap && schemaMap[k]?.type === "Bool"
+        ? $row.find("input.json_value").prop("checked")
+        : $row.find("input.json_value").val();
     obj[k] = v;
   });
   const s = JSON.stringify(obj);
@@ -27,6 +32,7 @@ function jsonTableAddRow(nm) {
           .join("")}
        </select>`
     : `<input type="text" class="json_key" onchange="jsonTableEdit('${nm}')" value="">`;
+  //const valInput = schemaMap ? `` : ``;
   $(`#table-edit-${nm}`).append(`
   <tr>
     <td>${keyInput}</td>

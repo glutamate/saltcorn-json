@@ -123,13 +123,19 @@ const json = {
                       })
                 ),
                 td(
-                  hasSchema &&
-                    input({
-                      type: "text",
-                      class: "json_value",
-                      onChange: `jsonTableEdit('${text(nm)}')`,
-                      value: v,
-                    })
+                  hasSchema && schemaMap[k]?.type === "Bool"
+                    ? input({
+                        type: "checkbox",
+                        class: "json_value",
+                        onChange: `jsonTableEdit('${text(nm)}')`,
+                        checked: v,
+                      })
+                    : input({
+                        type: "text",
+                        class: "json_value",
+                        onChange: `jsonTableEdit('${text(nm)}')`,
+                        value: v,
+                      })
                 ),
                 td(
                   i({
