@@ -151,6 +151,7 @@ const json = {
           new FieldRepeat({
             name: "schema",
             label: "Schema",
+            showIf: { hasSchema: true },
             fields: [
               { name: "key", label: "Key", type: "String" },
               {
