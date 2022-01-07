@@ -11,7 +11,13 @@ function jsonTableEdit(nm) {
   $(`#table-edit-${nm} tr`).each(function (i, row) {
     // reference all the stuff you need first
     const $row = $(row);
-    const k = $row.find("input.json_key,select.json_key").val();
+    let k = $row.find("input.json_key,select.json_key").val();
+    if (k === "Other...") {
+      k = $row.find("input.json_key_other").val();
+      $row.find("input.json_key_other").attr("type", "text");
+    } else {
+      $row.find("input.json_key_other").attr("type", "hidden");
+    }
     const velem = $row.find("input.json_value");
     if (schemaMap && schemaMap[k] && schemaMap[k].type === "Bool") {
       obj[k] = velem.prop("checked");
@@ -33,11 +39,21 @@ function jsonTableEdit(nm) {
 
 function jsonTableAddRow(nm) {
   const schemaMap = getSchemaMap(nm);
+  let allowUserDefined = false;
+  if (schemaMap && schemaMap._allowUserDefined) {
+    allowUserDefined = true;
+    delete schemaMap._allowUserDefined;
+  }
   const schemaKeys = schemaMap && Object.keys(schemaMap);
   const keyInput = schemaMap
     ? `<select class="json_key" onchange="jsonTableEdit('${nm}')">
         ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
-       </select>`
+        ${allowUserDefined ? `<option>Other...</option>` : ""}
+       </select>${
+         allowUserDefined
+           ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${nm}')" value="">`
+           : ""
+       }`
     : `<input type="text" class="json_key" onchange="jsonTableEdit('${nm}')" value="">`;
   const valInput =
     schemaMap && schemaMap[schemaKeys[0]].type === "Bool"

@@ -81,11 +81,14 @@ const json = {
       run: (nm, v, attrs, cls) => {
         //console.log(attrs);
         const schemaMap = {};
+        let schemaKeys = [];
         const hasSchema = attrs && attrs.hasSchema && attrs.schema;
         if (hasSchema) {
           attrs.schema.forEach(({ key, type, units }) => {
             schemaMap[key] = { type, units };
+            schemaKeys.push(key);
           });
+          if (attrs.allowUserDefined) schemaMap._allowUserDefined = true;
         }
         return (
           textarea(
@@ -115,8 +118,21 @@ const json = {
                         },
                         attrs.schema.map(({ key }) =>
                           option({ selected: key === k }, key)
-                        )
-                      )
+                        ),
+                        attrs.allowUserDefined &&
+                          option(
+                            { selected: !schemaKeys.includes(k) },
+                            "Other..."
+                          )
+                      ) +
+                        (attrs.allowUserDefined
+                          ? input({
+                              type: schemaKeys.includes(k) ? "hidden" : "text",
+                              class: "json_key_other d-block",
+                              onChange: `jsonTableEdit('${text(nm)}')`,
+                              value: k,
+                            })
+                          : "")
                     : input({
                         type: "text",
                         class: "json_key",
@@ -164,6 +180,14 @@ const json = {
     features && features.fieldrepeats_in_field_attributes
       ? [
           { name: "hasSchema", label: "Has Schema", type: "Bool" },
+          {
+            name: "allowUserDefined",
+            label: "Allow new keys",
+            type: "Bool",
+            showIf: { hasSchema: true },
+            sublabel:
+              "Allow the user to enter a new key that is not in the schema",
+          },
           new FieldRepeat({
             name: "schema",
             label: "Schema",
