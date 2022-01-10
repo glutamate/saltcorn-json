@@ -12,6 +12,8 @@ const {
   button,
   text_attr,
   select,
+  script,
+  domReady,
   option,
 } = require("@saltcorn/markup/tags");
 const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
@@ -56,17 +58,18 @@ const json = {
         },
       ],
       run: (nm, v, attrs, cls, required, field) =>
-        textarea(
-          {
-            class: "d-none",
-            name: text(nm),
-            id: `input${text(nm)}`,
-          },
-          text(JSON.stringify(v)) || ""
+        script(
+          domReady(
+            `initJsonSubfieldEdit("${nm}", ${JSON.stringify(v)}, '${
+              attrs.key
+            }')`
+          )
         ) +
         input({
           type: "text",
-          class: "json_subfield_edit",
+          class: `json_subfield_edit`,
+          "data-fieldname": nm,
+          "data-subfield": attrs.key,
           id: `json_subfield_${nm}_${attrs.key}`,
           onChange: `jsonSubfieldEdit('${text(nm)}', '${attrs.key}')`,
           value: v ? v[attrs.key] || "" : "",

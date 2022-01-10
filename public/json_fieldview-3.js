@@ -4,6 +4,17 @@ function getSchemaMap(nm) {
   else return false;
 }
 
+function initJsonSubfieldEdit(nm, v, key) {
+  const $e = $(`#input${nm}`);
+  if ($e.length < 1) {
+    $(`#json_subfield_${nm}_${key}`).closest("form").append(`
+    <textarea name="${nm}" class="d-none" id="input${nm}">
+    ${JSON.stringify(v)}
+    </textarea>
+    `);
+  }
+}
+
 function jsonSubfieldEdit(nm, key) {
   const obj = JSON.parse($(`#input${nm}`).val());
   obj[key] = $(`#json_subfield_${nm}_${key}`).val();
