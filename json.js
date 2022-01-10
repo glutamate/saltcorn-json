@@ -242,7 +242,7 @@ const json = {
       : [],
   read: (v, attrs) => {
     const alignSchema = (o) => {
-      if (!attrs || !attrs.hasSchema) return o;
+      if (!attrs || !attrs.hasSchema || !o) return o;
       (attrs.schema || []).map(({ key, type }) => {
         switch (type) {
           case "Integer":
