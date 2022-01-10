@@ -46,6 +46,32 @@ const json = {
         else return "";
       },
     },
+    edit_subfield: {
+      isEdit: true,
+      configFields: [
+        {
+          name: "key",
+          label: "Key",
+          type: "String",
+        },
+      ],
+      run: (nm, v, attrs, cls, required, field) =>
+        textarea(
+          {
+            class: "d-none",
+            name: text(nm),
+            id: `input${text(nm)}`,
+          },
+          text(JSON.stringify(v)) || ""
+        ) +
+        input({
+          type: "text",
+          class: "json_subfield_edit",
+          id: `json_subfield_${nm}_${attrs.key}`,
+          onChange: `jsonSubfieldEdit('${text(nm)}', '${attrs.key}')`,
+          value: v ? v[attrs.key] || "" : "",
+        }),
+    },
     pretty: {
       isEdit: false,
       run: (v) => pre({ class: "wsprewrap" }, code(JSON.stringify(v, null, 2))),

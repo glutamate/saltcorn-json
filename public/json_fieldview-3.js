@@ -4,6 +4,13 @@ function getSchemaMap(nm) {
   else return false;
 }
 
+function jsonSubfieldEdit(nm, key) {
+  const obj = JSON.parse($(`#input${nm}`).val());
+  obj[key] = $(`#json_subfield_${nm}_${key}`).val();
+  const s = JSON.stringify(obj);
+  $(`#input${nm}`).val(s);
+}
+
 function jsonTableEdit(nm) {
   const schemaMap = getSchemaMap(nm);
 
