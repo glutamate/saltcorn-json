@@ -5,7 +5,7 @@ function getSchemaMap(nm) {
 }
 
 function validID(s) {
-  return s.replace(/^[^a-z]+|[^\w:.-]+/gi, "");
+  return s ? s.replace(/^[^a-z]+|[^\w:.-]+/gi, "") : s;
 }
 
 function initJsonSubfieldEdit(nm, v, key) {

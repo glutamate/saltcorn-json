@@ -18,7 +18,6 @@ const {
 } = require("@saltcorn/markup/tags");
 const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
 const { features } = require("@saltcorn/data/db/state");
-const { int, float } = require("@saltcorn/data/base-plugin/types");
 
 const getSchemaMap = (attrs) => {
   const schemaMap = {};
@@ -33,6 +32,12 @@ const getSchemaMap = (attrs) => {
   }
   return { hasSchema, schemaMap, schemaKeys };
 };
+
+const showUnits = (schemaMap, k) => {
+  const u = schemaMap && schemaMap[k]?.units;
+  return u ? `&nbsp;${u}` : "";
+};
+
 //https://stackoverflow.com/a/9635698
 const validID = (s) => (s ? s.replace(/^[^a-z]+|[^\w:.-]+/gi, "") : s);
 const encode = (s) => (s ? encodeURIComponent(s).replace(/'/g, "%27") : s);
@@ -46,29 +51,9 @@ const json = {
     },
     subfield: {
       isEdit: false,
-      configFields: [
-        {
-          name: "key",
-          label: "Key",
-          type: "String",
-        },
-      ],
-      run: (v, req, options) => {
-        if (
-          options &&
-          options.key &&
-          v &&
-          typeof v[options.key] !== "undefined"
-        )
-          return text_attr(v[options.key]);
-        else return "";
-      },
-    },
-    edit_subfield: {
-      isEdit: true,
       configFields: (field) => {
-        const attrs = field.attributes;
-        const hasSchema = attrs && attrs.hasSchema && attrs.schema;
+        const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+
         return hasSchema
           ? [
               {
@@ -76,7 +61,41 @@ const json = {
                 label: "Key",
                 type: "String",
                 required: true,
-                attributes: { options: attrs.schema.map((s) => s.key) },
+                attributes: { options: schemaKeys },
+              },
+            ]
+          : [
+              {
+                name: "key",
+                label: "Key",
+                type: "String",
+              },
+            ];
+      },
+      run: (v, req, options) => {
+        const { schemaMap } = getSchemaMap(options);
+        if (
+          options &&
+          options.key &&
+          v &&
+          typeof v[options.key] !== "undefined"
+        )
+          return text_attr(v[options.key]) + showUnits(schemaMap, options.key);
+        else return "";
+      },
+    },
+    edit_subfield: {
+      isEdit: true,
+      configFields: (field) => {
+        const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+        return hasSchema
+          ? [
+              {
+                name: "key",
+                label: "Key",
+                type: "String",
+                required: true,
+                attributes: { options: schemaKeys },
               },
             ]
           : [
@@ -115,7 +134,8 @@ const json = {
               schemaMap[attrs.key]?.type === "Bool" &&
               v &&
               v[attrs.key],
-          })
+          }) +
+          showUnits(schemaMap, attrs.key)
         );
       },
     },
@@ -125,13 +145,18 @@ const json = {
     },
     show_table: {
       isEdit: false,
-      run: (v) => {
+      run: (v, req, options) => {
+        const { schemaMap } = getSchemaMap(options);
+
         return typeof v !== "object" || !v
           ? ""
           : table(
               { class: "table table-sm" },
               Object.entries(v).map(([k, v]) =>
-                tr(th(k), td(v === false ? "false" : text(v)))
+                tr(
+                  th(k),
+                  td(v === false ? "false" : text(v) + showUnits(schemaMap, k))
+                )
               )
             );
       },
@@ -219,7 +244,7 @@ const json = {
                         class: "json_value",
                         onChange: `jsonTableEdit('${encode(nm)}')`,
                         value: v,
-                      })
+                      }) + showUnits(schemaMap, k)
                 ),
                 td(
                   i({
