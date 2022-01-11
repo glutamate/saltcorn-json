@@ -51,6 +51,9 @@ function jsonTableEdit(nm) {
         );
     }
   });
+  $(`.json_subfield_edit_${nm}`).each(function (index, item) {
+    obj[$(item).attr("data-subfield")] = $(item).val();
+  });
   const s = JSON.stringify(obj);
   $(`#input${nm}`).val(s);
 }

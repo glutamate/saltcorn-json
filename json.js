@@ -67,8 +67,7 @@ const json = {
         ) +
         input({
           type: "text",
-          class: `json_subfield_edit`,
-          "data-fieldname": nm,
+          class: `json_subfield_edit_${nm}`,
           "data-subfield": attrs.key,
           id: `json_subfield_${nm}_${attrs.key}`,
           onChange: `jsonSubfieldEdit('${text(nm)}', '${attrs.key}')`,
@@ -244,20 +243,21 @@ const json = {
     const alignSchema = (o) => {
       if (!attrs || !attrs.hasSchema || !o) return o;
       (attrs.schema || []).map(({ key, type }) => {
-        switch (type) {
-          case "Integer":
-            o[key] = Math.round(+o[key]);
-            break;
-          case "Float":
-            o[key] = +o[key];
-            break;
-          case "Bool":
-            if (o[key] === "false") o[key] = false;
-            else o[key] = !!o[key];
-            break;
-          default:
-            break;
-        }
+        if (key in o)
+          switch (type) {
+            case "Integer":
+              o[key] = Math.round(+o[key]);
+              break;
+            case "Float":
+              o[key] = +o[key];
+              break;
+            case "Bool":
+              if (o[key] === "false") o[key] = false;
+              else o[key] = !!o[key];
+              break;
+            default:
+              break;
+          }
       });
       return o;
     };
