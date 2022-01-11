@@ -17,7 +17,8 @@ function initJsonSubfieldEdit(nm, v, key) {
 
 function jsonSubfieldEdit(nm, key) {
   const obj = JSON.parse($(`#input${nm}`).val()) || {};
-  obj[key] = $(`#json_subfield_${nm}_${key}`).val();
+  const $e = $(`#json_subfield_${nm}_${key}`);
+  obj[key] = $e.attr("type") === "checkbox" ? $e.prop("checked") : $e.val();
   const s = JSON.stringify(obj);
   $(`#input${nm}`).val(s);
 }
@@ -52,7 +53,10 @@ function jsonTableEdit(nm) {
     }
   });
   $(`.json_subfield_edit_${nm}`).each(function (index, item) {
-    obj[$(item).attr("data-subfield")] = $(item).val();
+    obj[$(item).attr("data-subfield")] =
+      $(item).attr("type") === "checkbox"
+        ? $(item).prop("checked")
+        : $(item).val();
   });
   const s = JSON.stringify(obj);
   $(`#input${nm}`).val(s);

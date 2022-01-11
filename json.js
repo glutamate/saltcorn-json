@@ -20,6 +20,19 @@ const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
 const { features } = require("@saltcorn/data/db/state");
 const { int, float } = require("@saltcorn/data/base-plugin/types");
 
+const getSchemaMap = (attrs) => {
+  const schemaMap = {};
+  let schemaKeys = [];
+  const hasSchema = attrs && attrs.hasSchema && attrs.schema;
+  if (hasSchema) {
+    attrs.schema.forEach(({ key, type, units }) => {
+      schemaMap[key] = { type, units };
+      schemaKeys.push(key);
+    });
+    if (attrs.allowUserDefined) schemaMap._allowUserDefined = true;
+  }
+  return { hasSchema, schemaMap, schemaKeys };
+};
 const json = {
   name: "JSON",
   sql_name: "jsonb",
@@ -71,22 +84,35 @@ const json = {
               },
             ];
       },
-      run: (nm, v, attrs, cls, required, field) =>
-        script(
-          domReady(
-            `initJsonSubfieldEdit("${nm}", ${JSON.stringify(v)}, '${
-              attrs.key
-            }')`
-          )
-        ) +
-        input({
-          type: "text",
-          class: `json_subfield_edit_${nm}`,
-          "data-subfield": attrs.key,
-          id: `json_subfield_${nm}_${attrs.key}`,
-          onChange: `jsonSubfieldEdit('${text(nm)}', '${attrs.key}')`,
-          value: v ? v[attrs.key] || "" : "",
-        }),
+      run: (nm, v, attrs, cls, required, field) => {
+        const { hasSchema, schemaMap } = getSchemaMap(attrs);
+
+        return (
+          script(
+            domReady(
+              `initJsonSubfieldEdit("${nm}", ${JSON.stringify(v)}, '${
+                attrs.key
+              }')`
+            )
+          ) +
+          input({
+            type:
+              hasSchema && schemaMap[attrs.key]?.type === "Bool"
+                ? "checkbox"
+                : "text",
+            class: `json_subfield_edit_${nm}`,
+            "data-subfield": attrs.key,
+            id: `json_subfield_${nm}_${attrs.key}`,
+            onChange: `jsonSubfieldEdit('${text(nm)}', '${attrs.key}')`,
+            value: v ? v[attrs.key] || "" : "",
+            checked:
+              hasSchema &&
+              schemaMap[attrs.key]?.type === "Bool" &&
+              v &&
+              v[attrs.key],
+          })
+        );
+      },
     },
     pretty: {
       isEdit: false,
@@ -122,16 +148,7 @@ const json = {
       isEdit: true,
       run: (nm, v, attrs, cls) => {
         //console.log(attrs);
-        const schemaMap = {};
-        let schemaKeys = [];
-        const hasSchema = attrs && attrs.hasSchema && attrs.schema;
-        if (hasSchema) {
-          attrs.schema.forEach(({ key, type, units }) => {
-            schemaMap[key] = { type, units };
-            schemaKeys.push(key);
-          });
-          if (attrs.allowUserDefined) schemaMap._allowUserDefined = true;
-        }
+        const { hasSchema, schemaMap, schemaKeys } = getSchemaMap(attrs);
         return (
           textarea(
             {
