@@ -15,6 +15,8 @@ const {
   script,
   domReady,
   option,
+  span,
+  nbsp,
 } = require("@saltcorn/markup/tags");
 const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
 const { features } = require("@saltcorn/data/db/state");
@@ -33,10 +35,8 @@ const getSchemaMap = (attrs) => {
   return { hasSchema, schemaMap, schemaKeys };
 };
 
-const showUnits = (schemaMap, k) => {
-  const u = schemaMap && schemaMap[k]?.units;
-  return u ? `&nbsp;${u}` : "";
-};
+const showUnits = (schemaMap, k) =>
+  nbsp + span({ class: "units" }, (schemaMap && schemaMap[k]?.units) || "");
 
 //https://stackoverflow.com/a/9635698
 const validID = (s) => (s ? s.replace(/^[^a-z]+|[^\w:.-]+/gi, "") : s);

@@ -46,6 +46,11 @@ function jsonTableEdit(nm0) {
       $row.find("input.json_key_other").attr("type", "hidden");
     }
     const velem = $row.find("input.json_value");
+    if (schemaMap && schemaMap[k]?.units) {
+      $row.find("td:nth-child(2) span.units").html(schemaMap[k].units);
+    } else {
+      $row.find("td:nth-child(2) span.units").html("");
+    }
     if (schemaMap && schemaMap[k] && schemaMap[k].type === "Bool") {
       obj[k] = velem.prop("checked");
       if (velem.attr("type") !== "checkbox")
@@ -109,7 +114,7 @@ function jsonTableAddRow(nm) {
   $(`#table-edit-${encodeURIComponent(nm)}`).append(`
   <tr>
     <td>${keyInput}</td>
-    <td>${valInput}</td>
+    <td>${valInput}<span class="units"></span></td>
     <td><i class="fas fa-times" onclick="jsonTableDeleteRow('${encodeURIComponent(
       nm
     )}', this)"></i></td>
