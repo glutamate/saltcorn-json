@@ -50,13 +50,27 @@ const json = {
     },
     edit_subfield: {
       isEdit: true,
-      configFields: [
-        {
-          name: "key",
-          label: "Key",
-          type: "String",
-        },
-      ],
+      configFields: (field) => {
+        const attrs = field.attributes;
+        const hasSchema = attrs && attrs.hasSchema && attrs.schema;
+        return hasSchema
+          ? [
+              {
+                name: "key",
+                label: "Key",
+                type: "String",
+                required: true,
+                attributes: { options: attrs.schema.map((s) => s.key) },
+              },
+            ]
+          : [
+              {
+                name: "key",
+                label: "Key",
+                type: "String",
+              },
+            ];
+      },
       run: (nm, v, attrs, cls, required, field) =>
         script(
           domReady(
