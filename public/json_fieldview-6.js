@@ -29,7 +29,9 @@ function jsonSubfieldEdit(nm0, key0) {
   $(`#input${validID(nm)}`).val(s);
 }
 
-function jsonTableEdit(nm) {
+function jsonTableEdit(nm0) {
+  const nm = decodeURIComponent(nm0);
+
   const schemaMap = getSchemaMap(nm);
 
   const obj = {};
@@ -62,14 +64,14 @@ function jsonTableEdit(nm) {
         );
     }
   });
-  $(`.json_subfield_edit_${nm}`).each(function (index, item) {
+  $(`.json_subfield_edit_${validID(nm)}`).each(function (index, item) {
     obj[decodeURIComponent($(item).attr("data-subfield"))] =
       $(item).attr("type") === "checkbox"
         ? $(item).prop("checked")
         : $(item).val();
   });
   const s = JSON.stringify(obj);
-  $(`#input${encodeURIComponent(nm)}`).val(s);
+  $(`#input${validID(nm)}`).val(s);
 }
 
 function jsonTableAddRow(nm) {

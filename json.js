@@ -34,8 +34,8 @@ const getSchemaMap = (attrs) => {
   return { hasSchema, schemaMap, schemaKeys };
 };
 //https://stackoverflow.com/a/9635698
-const validID = (s) => s.replace(/^[^a-z]+|[^\w:.-]+/gi, "");
-const encode = (s) => encodeURIComponent(s).replace(/'/g, "%27");
+const validID = (s) => (s ? s.replace(/^[^a-z]+|[^\w:.-]+/gi, "") : s);
+const encode = (s) => (s ? encodeURIComponent(s).replace(/'/g, "%27") : s);
 const json = {
   name: "JSON",
   sql_name: "jsonb",
@@ -158,15 +158,15 @@ const json = {
           textarea(
             {
               class: "d-none",
-              name: encodeURIComponent(nm),
-              id: `input${encodeURIComponent(nm)}`,
+              name: text(nm),
+              id: `input${encode(nm)}`,
             },
             text(JSON.stringify(v)) || ""
           ) +
           table(
             {
               class: "table table-sm json-table-edit",
-              id: `table-edit-${encodeURIComponent(nm)}`,
+              id: `table-edit-${validID(nm)}`,
               "data-schema-map": hasSchema
                 ? encodeURIComponent(JSON.stringify(schemaMap))
                 : undefined,
@@ -195,16 +195,14 @@ const json = {
                           ? input({
                               type: schemaKeys.includes(k) ? "hidden" : "text",
                               class: "json_key_other d-block",
-                              onChange: `jsonTableEdit('${encodeURIComponent(
-                                nm
-                              )}')`,
+                              onChange: `jsonTableEdit('${encode(nm)}')`,
                               value: k,
                             })
                           : "")
                     : input({
                         type: "text",
                         class: "json_key",
-                        onChange: `jsonTableEdit('${encodeURIComponent(nm)}')`,
+                        onChange: `jsonTableEdit('${encode(nm)}')`,
                         value: k,
                       })
                 ),
@@ -213,22 +211,20 @@ const json = {
                     ? input({
                         type: "checkbox",
                         class: "json_value",
-                        onChange: `jsonTableEdit('${encodeURIComponent(nm)}')`,
+                        onChange: `jsonTableEdit('${encode(nm)}')`,
                         checked: v,
                       })
                     : input({
                         type: "text",
                         class: "json_value",
-                        onChange: `jsonTableEdit('${encodeURIComponent(nm)}')`,
+                        onChange: `jsonTableEdit('${encode(nm)}')`,
                         value: v,
                       })
                 ),
                 td(
                   i({
                     class: "fas fa-times",
-                    onClick: `jsonTableDeleteRow('${encodeURIComponent(
-                      nm
-                    )}', this)`,
+                    onClick: `jsonTableDeleteRow('${encode(nm)}', this)`,
                   })
                 )
               )
@@ -238,7 +234,7 @@ const json = {
             {
               class: "btn btn-primary btn-sm",
               type: "button",
-              onClick: `jsonTableAddRow('${encodeURIComponent(nm)}')`,
+              onClick: `jsonTableAddRow('${encode(nm)}')`,
             },
             "Add entry"
           )
