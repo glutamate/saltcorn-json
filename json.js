@@ -281,7 +281,7 @@ module.exports = {
 
   headers: [
     {
-      script: "/plugins/public/json/json_fieldview-4.js",
+      script: "/plugins/public/json/json_fieldview-5.js",
     },
   ],
 };
