@@ -33,6 +33,9 @@ const getSchemaMap = (attrs) => {
   }
   return { hasSchema, schemaMap, schemaKeys };
 };
+//https://stackoverflow.com/a/9635698
+const validID = (s) => s.replace(/^[^a-z]+|[^\w:.-]+/gi, "");
+const encode = (s) => encodeURIComponent(s).replace(/'/g, "%27");
 const json = {
   name: "JSON",
   sql_name: "jsonb",
@@ -90,9 +93,9 @@ const json = {
         return (
           script(
             domReady(
-              `initJsonSubfieldEdit("${nm}", ${JSON.stringify(v)}, '${
-                attrs.key
-              }')`
+              `initJsonSubfieldEdit(${JSON.stringify(nm)}, ${JSON.stringify(
+                v
+              )}, ${JSON.stringify(attrs.key)})`
             )
           ) +
           input({
@@ -100,10 +103,12 @@ const json = {
               hasSchema && schemaMap[attrs.key]?.type === "Bool"
                 ? "checkbox"
                 : "text",
-            class: `json_subfield_edit_${nm}`,
-            "data-subfield": attrs.key,
-            id: `json_subfield_${nm}_${attrs.key}`,
-            onChange: `jsonSubfieldEdit('${text(nm)}', '${attrs.key}')`,
+            class: `json_subfield_edit_${validID(nm)}`,
+            "data-subfield": encode(attrs.key),
+            id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
+            onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
+              attrs.key
+            )}')`,
             value: v ? v[attrs.key] || "" : "",
             checked:
               hasSchema &&
@@ -137,8 +142,8 @@ const json = {
         textarea(
           {
             class: ["form-control", cls],
-            name: text(nm),
-            id: `input${text(nm)}`,
+            name: encodeURIComponent(nm),
+            id: `input${encodeURIComponent(nm)}`,
             rows: 10,
           },
           text(JSON.stringify(v)) || ""
@@ -153,15 +158,15 @@ const json = {
           textarea(
             {
               class: "d-none",
-              name: text(nm),
-              id: `input${text(nm)}`,
+              name: encodeURIComponent(nm),
+              id: `input${encodeURIComponent(nm)}`,
             },
             text(JSON.stringify(v)) || ""
           ) +
           table(
             {
               class: "table table-sm json-table-edit",
-              id: `table-edit-${text(nm)}`,
+              id: `table-edit-${encodeURIComponent(nm)}`,
               "data-schema-map": hasSchema
                 ? encodeURIComponent(JSON.stringify(schemaMap))
                 : undefined,
@@ -173,7 +178,9 @@ const json = {
                     ? select(
                         {
                           class: "json_key",
-                          onChange: `jsonTableEdit('${text(nm)}')`,
+                          onChange: `jsonTableEdit('${encodeURIComponent(
+                            nm
+                          )}')`,
                         },
                         attrs.schema.map(({ key }) =>
                           option({ selected: key === k }, key)
@@ -188,14 +195,16 @@ const json = {
                           ? input({
                               type: schemaKeys.includes(k) ? "hidden" : "text",
                               class: "json_key_other d-block",
-                              onChange: `jsonTableEdit('${text(nm)}')`,
+                              onChange: `jsonTableEdit('${encodeURIComponent(
+                                nm
+                              )}')`,
                               value: k,
                             })
                           : "")
                     : input({
                         type: "text",
                         class: "json_key",
-                        onChange: `jsonTableEdit('${text(nm)}')`,
+                        onChange: `jsonTableEdit('${encodeURIComponent(nm)}')`,
                         value: k,
                       })
                 ),
@@ -204,20 +213,22 @@ const json = {
                     ? input({
                         type: "checkbox",
                         class: "json_value",
-                        onChange: `jsonTableEdit('${text(nm)}')`,
+                        onChange: `jsonTableEdit('${encodeURIComponent(nm)}')`,
                         checked: v,
                       })
                     : input({
                         type: "text",
                         class: "json_value",
-                        onChange: `jsonTableEdit('${text(nm)}')`,
+                        onChange: `jsonTableEdit('${encodeURIComponent(nm)}')`,
                         value: v,
                       })
                 ),
                 td(
                   i({
                     class: "fas fa-times",
-                    onClick: `jsonTableDeleteRow('${text(nm)}', this)`,
+                    onClick: `jsonTableDeleteRow('${encodeURIComponent(
+                      nm
+                    )}', this)`,
                   })
                 )
               )
@@ -227,7 +238,7 @@ const json = {
             {
               class: "btn btn-primary btn-sm",
               type: "button",
-              onClick: `jsonTableAddRow('${text(nm)}')`,
+              onClick: `jsonTableAddRow('${encodeURIComponent(nm)}')`,
             },
             "Add entry"
           )

@@ -4,30 +4,36 @@ function getSchemaMap(nm) {
   else return false;
 }
 
+function validID(s) {
+  return s.replace(/^[^a-z]+|[^\w:.-]+/gi, "");
+}
+
 function initJsonSubfieldEdit(nm, v, key) {
-  const $e = $(`#input${nm}`);
+  const $e = $(`#input${validID(nm)}`);
   if ($e.length < 1) {
-    $(`#json_subfield_${nm}_${key}`).closest("form").append(`
-    <textarea name="${nm}" class="d-none" id="input${nm}">
+    $(`#json_subfield_${validID(nm)}_${validID(key)}`).closest("form").append(`
+    <textarea name="${validID(nm)}" class="d-none" id="input${validID(nm)}">
     ${JSON.stringify(v)}
     </textarea>
     `);
   }
 }
 
-function jsonSubfieldEdit(nm, key) {
-  const obj = JSON.parse($(`#input${nm}`).val()) || {};
-  const $e = $(`#json_subfield_${nm}_${key}`);
+function jsonSubfieldEdit(nm0, key0) {
+  const nm = decodeURIComponent(nm0);
+  const key = decodeURIComponent(key0);
+  const obj = JSON.parse($(`#input${validID(nm)}`).val()) || {};
+  const $e = $(`#json_subfield_${validID(nm)}_${validID(key)}`);
   obj[key] = $e.attr("type") === "checkbox" ? $e.prop("checked") : $e.val();
   const s = JSON.stringify(obj);
-  $(`#input${nm}`).val(s);
+  $(`#input${validID(nm)}`).val(s);
 }
 
 function jsonTableEdit(nm) {
   const schemaMap = getSchemaMap(nm);
 
   const obj = {};
-  $(`#table-edit-${nm} tr`).each(function (i, row) {
+  $(`#table-edit-${encodeURIComponent(nm)} tr`).each(function (i, row) {
     // reference all the stuff you need first
     const $row = $(row);
     let k = $row.find("input.json_key,select.json_key").val();
@@ -42,24 +48,28 @@ function jsonTableEdit(nm) {
       obj[k] = velem.prop("checked");
       if (velem.attr("type") !== "checkbox")
         velem.replaceWith(
-          `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${nm}')">`
+          `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
+            nm
+          )}')">`
         );
     } else {
       obj[k] = velem.val();
       if (velem.attr("type") === "checkbox")
         velem.replaceWith(
-          `<input type="text" class="json_value" onchange="jsonTableEdit('${nm}')" value="">`
+          `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
+            nm
+          )}')" value="">`
         );
     }
   });
   $(`.json_subfield_edit_${nm}`).each(function (index, item) {
-    obj[$(item).attr("data-subfield")] =
+    obj[decodeURIComponent($(item).attr("data-subfield"))] =
       $(item).attr("type") === "checkbox"
         ? $(item).prop("checked")
         : $(item).val();
   });
   const s = JSON.stringify(obj);
-  $(`#input${nm}`).val(s);
+  $(`#input${encodeURIComponent(nm)}`).val(s);
 }
 
 function jsonTableAddRow(nm) {
@@ -71,24 +81,36 @@ function jsonTableAddRow(nm) {
   }
   const schemaKeys = schemaMap && Object.keys(schemaMap);
   const keyInput = schemaMap
-    ? `<select class="json_key" onchange="jsonTableEdit('${nm}')">
+    ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+        nm
+      )}')">
         ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
         ${allowUserDefined ? `<option>Other...</option>` : ""}
        </select>${
          allowUserDefined
-           ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${nm}')" value="">`
+           ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${encodeURIComponent(
+               nm
+             )}')" value="">`
            : ""
        }`
-    : `<input type="text" class="json_key" onchange="jsonTableEdit('${nm}')" value="">`;
+    : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+        nm
+      )}')" value="">`;
   const valInput =
     schemaMap && schemaMap[schemaKeys[0]].type === "Bool"
-      ? `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${nm}')">`
-      : `<input type="text" class="json_value" onchange="jsonTableEdit('${nm}')" value="">`;
-  $(`#table-edit-${nm}`).append(`
+      ? `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
+          nm
+        )}')">`
+      : `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
+          nm
+        )}')" value="">`;
+  $(`#table-edit-${encodeURIComponent(nm)}`).append(`
   <tr>
     <td>${keyInput}</td>
     <td>${valInput}</td>
-    <td><i class="fas fa-times" onclick="jsonTableDeleteRow('${nm}', this)"></i></td>
+    <td><i class="fas fa-times" onclick="jsonTableDeleteRow('${encodeURIComponent(
+      nm
+    )}', this)"></i></td>
   </tr>
   `);
 }
