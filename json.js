@@ -31,6 +31,7 @@ const getSchemaMap = (attrs) => {
       schemaKeys.push(key);
     });
     if (attrs.allowUserDefined) schemaMap._allowUserDefined = true;
+    if (attrs.all_keys) schemaMap._all_keys = true;
   }
   return { hasSchema, schemaMap, schemaKeys };
 };
@@ -191,7 +192,6 @@ const json = {
       run: (nm, v, attrs, cls) => {
         //console.log(attrs);
         const { hasSchema, schemaMap, schemaKeys } = getSchemaMap(attrs);
-        console.log(attrs);
         return (
           textarea(
             {
@@ -210,25 +210,26 @@ const json = {
                 : undefined,
             },
             hasSchema && attrs.all_keys
-              ? schemaKeys.map((k) =>
-                  tr(
-                    th(k),
-                    td(
-                      schemaMap[k]?.type === "Bool"
-                        ? input({
-                            type: "checkbox",
-                            class: "json_value",
-                            onChange: `jsonTableEdit('${encode(nm)}')`,
-                            checked: (v | {})[k],
-                          })
-                        : input({
-                            type: "text",
-                            class: "json_value",
-                            onChange: `jsonTableEdit('${encode(nm)}')`,
-                            value: (v | {})[k],
-                          }) + showUnits(schemaMap, k)
+              ? [...new Set([...schemaKeys, ...Object.keys(v || {})])].map(
+                  (k) =>
+                    tr(
+                      th(k),
+                      td(
+                        schemaMap[k]?.type === "Bool"
+                          ? input({
+                              type: "checkbox",
+                              class: "json_value",
+                              onChange: `jsonTableEdit('${encode(nm)}')`,
+                              checked: (v || {})[k],
+                            })
+                          : input({
+                              type: "text",
+                              class: "json_value",
+                              onChange: `jsonTableEdit('${encode(nm)}')`,
+                              value: (v || {})[k],
+                            }) + showUnits(schemaMap, k)
+                      )
                     )
-                  )
                 )
               : Object.entries(v || {}).map(([k, v]) =>
                   tr(

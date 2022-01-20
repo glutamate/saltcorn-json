@@ -92,10 +92,11 @@ function jsonTableAddRow(nm) {
     delete schemaMap._allowUserDefined;
   }
   const schemaKeys = schemaMap && Object.keys(schemaMap);
-  const keyInput = schemaMap
-    ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}')">
+  const keyInput =
+    schemaMap && !schemaMap._all_keys
+      ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+          nm
+        )}')">
         ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
         ${allowUserDefined ? `<option>Other...</option>` : ""}
        </select>${
@@ -105,9 +106,9 @@ function jsonTableAddRow(nm) {
              )}')" value="">`
            : ""
        }`
-    : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}')" value="">`;
+      : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+          nm
+        )}')" value="">`;
   const valInput =
     schemaMap && schemaMap[schemaKeys[0]].type === "Bool"
       ? `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
