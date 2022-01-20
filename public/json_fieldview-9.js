@@ -39,7 +39,11 @@ function jsonTableEdit(nm0) {
   $(`#table-edit-${encodeURIComponent(nm)} tr`).each(function (i, row) {
     // reference all the stuff you need first
     const $row = $(row);
-    let k = $row.find("input.json_key,select.json_key").val();
+    let k;
+    const kInput = $row.find("input.json_key,select.json_key");
+    if (kInput.length === 0) k = $row.find("th").text();
+    else k = kInput.val();
+
     if (k === "Other...") {
       k = $row.find("input.json_key_other").val();
       $row.find("input.json_key_other").attr("type", "text");

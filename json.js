@@ -180,12 +180,11 @@ const json = {
         const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
         return hasSchema
           ? [
-              ...schemaKeys.map((k) => ({
-                name: "prefer_" + k,
-                label: k,
-                parent_field: "preferred_keys",
+              {
+                name: "all_keys",
+                label: "All keys",
                 type: "Bool",
-              })),
+              },
             ]
           : [];
       },
@@ -210,64 +209,87 @@ const json = {
                 ? encodeURIComponent(JSON.stringify(schemaMap))
                 : undefined,
             },
-            Object.entries(v || {}).map(([k, v]) =>
-              tr(
-                td(
-                  hasSchema
-                    ? select(
-                        {
-                          class: "json_key",
-                          onChange: `jsonTableEdit('${encodeURIComponent(
-                            nm
-                          )}')`,
-                        },
-                        attrs.schema.map(({ key }) =>
-                          option({ selected: key === k }, key)
-                        ),
-                        attrs.allowUserDefined &&
-                          option(
-                            { selected: !schemaKeys.includes(k) },
-                            "Other..."
-                          )
-                      ) +
-                        (attrs.allowUserDefined
-                          ? input({
-                              type: schemaKeys.includes(k) ? "hidden" : "text",
-                              class: "json_key_other d-block",
-                              onChange: `jsonTableEdit('${encode(nm)}')`,
-                              value: k,
-                            })
-                          : "")
-                    : input({
-                        type: "text",
-                        class: "json_key",
-                        onChange: `jsonTableEdit('${encode(nm)}')`,
-                        value: k,
-                      })
-                ),
-                td(
-                  hasSchema && schemaMap[k]?.type === "Bool"
-                    ? input({
-                        type: "checkbox",
-                        class: "json_value",
-                        onChange: `jsonTableEdit('${encode(nm)}')`,
-                        checked: v,
-                      })
-                    : input({
-                        type: "text",
-                        class: "json_value",
-                        onChange: `jsonTableEdit('${encode(nm)}')`,
-                        value: v,
-                      }) + showUnits(schemaMap, k)
-                ),
-                td(
-                  i({
-                    class: "fas fa-times",
-                    onClick: `jsonTableDeleteRow('${encode(nm)}', this)`,
-                  })
+            hasSchema && attrs.all_keys
+              ? schemaKeys.map((k) =>
+                  tr(
+                    th(k),
+                    td(
+                      schemaMap[k]?.type === "Bool"
+                        ? input({
+                            type: "checkbox",
+                            class: "json_value",
+                            onChange: `jsonTableEdit('${encode(nm)}')`,
+                            checked: (v | {})[k],
+                          })
+                        : input({
+                            type: "text",
+                            class: "json_value",
+                            onChange: `jsonTableEdit('${encode(nm)}')`,
+                            value: (v | {})[k],
+                          }) + showUnits(schemaMap, k)
+                    )
+                  )
                 )
-              )
-            )
+              : Object.entries(v || {}).map(([k, v]) =>
+                  tr(
+                    td(
+                      hasSchema
+                        ? select(
+                            {
+                              class: "json_key",
+                              onChange: `jsonTableEdit('${encodeURIComponent(
+                                nm
+                              )}')`,
+                            },
+                            attrs.schema.map(({ key }) =>
+                              option({ selected: key === k }, key)
+                            ),
+                            attrs.allowUserDefined &&
+                              option(
+                                { selected: !schemaKeys.includes(k) },
+                                "Other..."
+                              )
+                          ) +
+                            (attrs.allowUserDefined
+                              ? input({
+                                  type: schemaKeys.includes(k)
+                                    ? "hidden"
+                                    : "text",
+                                  class: "json_key_other d-block",
+                                  onChange: `jsonTableEdit('${encode(nm)}')`,
+                                  value: k,
+                                })
+                              : "")
+                        : input({
+                            type: "text",
+                            class: "json_key",
+                            onChange: `jsonTableEdit('${encode(nm)}')`,
+                            value: k,
+                          })
+                    ),
+                    td(
+                      hasSchema && schemaMap[k]?.type === "Bool"
+                        ? input({
+                            type: "checkbox",
+                            class: "json_value",
+                            onChange: `jsonTableEdit('${encode(nm)}')`,
+                            checked: v,
+                          })
+                        : input({
+                            type: "text",
+                            class: "json_value",
+                            onChange: `jsonTableEdit('${encode(nm)}')`,
+                            value: v,
+                          }) + showUnits(schemaMap, k)
+                    ),
+                    td(
+                      i({
+                        class: "fas fa-times",
+                        onClick: `jsonTableDeleteRow('${encode(nm)}', this)`,
+                      })
+                    )
+                  )
+                )
           ) +
           button(
             {
