@@ -383,7 +383,7 @@ module.exports = {
 
   headers: [
     {
-      script: "/plugins/public/json/json_fieldview-9.js",
+      script: "/plugins/public/json/json_fieldview-10.js",
     },
   ],
 };
