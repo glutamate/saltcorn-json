@@ -291,14 +291,16 @@ const json = {
                   )
                 )
           ) +
-          button(
-            {
-              class: "btn btn-primary btn-sm",
-              type: "button",
-              onClick: `jsonTableAddRow('${encode(nm)}')`,
-            },
-            "Add entry"
-          )
+          (hasSchema && attrs.all_keys && !attrs.allowUserDefined
+            ? ""
+            : button(
+                {
+                  class: "btn btn-primary btn-sm",
+                  type: "button",
+                  onClick: `jsonTableAddRow('${encode(nm)}')`,
+                },
+                "Add entry"
+              ))
         );
       },
     },
