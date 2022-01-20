@@ -39,7 +39,11 @@ function jsonTableEdit(nm0) {
   $(`#table-edit-${encodeURIComponent(nm)} tr`).each(function (i, row) {
     // reference all the stuff you need first
     const $row = $(row);
-    let k = $row.find("input.json_key,select.json_key").val();
+    let k;
+    const kInput = $row.find("input.json_key,select.json_key");
+    if (kInput.length === 0) k = $row.find("th").text();
+    else k = kInput.val();
+
     if (k === "Other...") {
       k = $row.find("input.json_key_other").val();
       $row.find("input.json_key_other").attr("type", "text");
@@ -61,7 +65,8 @@ function jsonTableEdit(nm0) {
           )}')">`
         );
     } else {
-      obj[k] = velem.val();
+      const elemVal = velem.val();
+      if (elemVal !== "" || typeof obj[k] !== "undefined") obj[k] = elemVal;
       if (velem.attr("type") === "checkbox")
         velem.replaceWith(
           `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
@@ -88,10 +93,11 @@ function jsonTableAddRow(nm) {
     delete schemaMap._allowUserDefined;
   }
   const schemaKeys = schemaMap && Object.keys(schemaMap);
-  const keyInput = schemaMap
-    ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}')">
+  const keyInput =
+    schemaMap && !schemaMap._all_keys
+      ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+          nm
+        )}')">
         ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
         ${allowUserDefined ? `<option>Other...</option>` : ""}
        </select>${
@@ -101,9 +107,9 @@ function jsonTableAddRow(nm) {
              )}')" value="">`
            : ""
        }`
-    : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}')" value="">`;
+      : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+          nm
+        )}')" value="">`;
   const valInput =
     schemaMap && schemaMap[schemaKeys[0]].type === "Bool"
       ? `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
