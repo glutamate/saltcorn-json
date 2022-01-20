@@ -176,9 +176,23 @@ const json = {
     },
     edit_table: {
       isEdit: true,
+      configFields: (field) => {
+        const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+        return hasSchema
+          ? [
+              ...schemaKeys.map((k) => ({
+                name: "prefer_" + k,
+                label: k,
+                parent_field: "preferred_keys",
+                type: "Bool",
+              })),
+            ]
+          : [];
+      },
       run: (nm, v, attrs, cls) => {
         //console.log(attrs);
         const { hasSchema, schemaMap, schemaKeys } = getSchemaMap(attrs);
+        console.log(attrs);
         return (
           textarea(
             {
