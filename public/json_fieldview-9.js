@@ -65,7 +65,8 @@ function jsonTableEdit(nm0) {
           )}')">`
         );
     } else {
-      obj[k] = velem.val();
+      const elemVal = velem.val();
+      if (elemVal !== "" || typeof obj[k] !== "undefined") obj[k] = elemVal;
       if (velem.attr("type") === "checkbox")
         velem.replaceWith(
           `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
