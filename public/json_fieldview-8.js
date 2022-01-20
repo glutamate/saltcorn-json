@@ -22,7 +22,8 @@ function initJsonSubfieldEdit(nm, v, key) {
 function jsonSubfieldEdit(nm0, key0) {
   const nm = decodeURIComponent(nm0);
   const key = decodeURIComponent(key0);
-  const obj = JSON.parse($(`#input${validID(nm)}`).val()) || {};
+  const valStr = $(`#input${validID(nm)}`).val();
+  const obj = valStr ? JSON.parse(valStr) : {};
   const $e = $(`#json_subfield_${validID(nm)}_${validID(key)}`);
   obj[key] = $e.attr("type") === "checkbox" ? $e.prop("checked") : $e.val();
   const s = JSON.stringify(obj);
