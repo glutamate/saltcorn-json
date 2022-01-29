@@ -5,9 +5,13 @@ function getSchemaMap(nm) {
 }
 
 function validID(s) {
-  return s ? s.replace(/^[^a-z]+|[^\w:.-]+/gi, "") : s;
+  return s
+    ? s
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
+    : s;
 }
-
 function initJsonSubfieldEdit(nm, v, key) {
   const $e = $(`#input${validID(nm)}`);
   if ($e.length < 1) {

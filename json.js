@@ -40,7 +40,14 @@ const showUnits = (schemaMap, k) =>
   nbsp + span({ class: "units" }, (schemaMap && schemaMap[k]?.units) || "");
 
 //https://stackoverflow.com/a/9635698
-const validID = (s) => (s ? s.replace(/^[^a-z]+|[^\w:.-]+/gi, "") : s);
+function validID(s) {
+  return s
+    ? s
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
+    : s;
+}
 const encode = (s) => (s ? encodeURIComponent(s).replace(/'/g, "%27") : s);
 const json = {
   name: "JSON",
