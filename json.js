@@ -116,7 +116,6 @@ const json = {
       },
       run: (nm, v, attrs, cls, required, field) => {
         const { hasSchema, schemaMap } = getSchemaMap(attrs);
-        console.log(attrs);
         return (
           script(
             domReady(
