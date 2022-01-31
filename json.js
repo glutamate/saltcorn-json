@@ -69,7 +69,7 @@ const json = {
                 label: "Key",
                 type: "String",
                 required: true,
-                attributes: { options: schemaKeys },
+                attributes: { options: ["", ...schemaKeys] },
               },
             ]
           : [
@@ -103,7 +103,7 @@ const json = {
                 label: "Key",
                 type: "String",
                 required: true,
-                attributes: { options: schemaKeys },
+                attributes: { options: ["", ...schemaKeys] },
               },
             ]
           : [
@@ -116,7 +116,7 @@ const json = {
       },
       run: (nm, v, attrs, cls, required, field) => {
         const { hasSchema, schemaMap } = getSchemaMap(attrs);
-
+        console.log(attrs);
         return (
           script(
             domReady(
@@ -179,7 +179,7 @@ const json = {
             id: `input${encodeURIComponent(nm)}`,
             rows: 10,
           },
-          text(JSON.stringify(v)) || ""
+          typeof v === "undefined" ? "" : text(JSON.stringify(v)) || ""
         ),
     },
     edit_table: {
@@ -206,7 +206,7 @@ const json = {
               name: text(nm),
               id: `input${encode(nm)}`,
             },
-            text(JSON.stringify(v)) || ""
+            typeof v === "undefined" ? "" : text(JSON.stringify(v))
           ) +
           table(
             {

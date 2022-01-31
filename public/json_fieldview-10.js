@@ -17,7 +17,7 @@ function initJsonSubfieldEdit(nm, v, key) {
   if ($e.length < 1) {
     $(`#json_subfield_${validID(nm)}_${validID(key)}`).closest("form").append(`
     <textarea name="${validID(nm)}" class="d-none" id="input${validID(nm)}">
-    ${JSON.stringify(v)}
+    ${typeof v === "undefined" ? "" : JSON.stringify(v)}
     </textarea>
     `);
   }
@@ -26,8 +26,11 @@ function initJsonSubfieldEdit(nm, v, key) {
 function jsonSubfieldEdit(nm0, key0) {
   const nm = decodeURIComponent(nm0);
   const key = decodeURIComponent(key0);
-  const valStr = $(`#input${validID(nm)}`).val();
-  const obj = valStr ? JSON.parse(valStr) : {};
+  let obj = {};
+  try {
+    const valStr = $(`#input${validID(nm)}`).val();
+    obj = JSON.parse(valStr);
+  } catch {}
   const $e = $(`#json_subfield_${validID(nm)}_${validID(key)}`);
   obj[key] = $e.attr("type") === "checkbox" ? $e.prop("checked") : $e.val();
   const s = JSON.stringify(obj);
