@@ -1,5 +1,5 @@
 function getSchemaMap(nm) {
-  const s = $(`#table-edit-${nm}`).attr("data-schema-map");
+  const s = $(`.table-edit-${nm}`).attr("data-schema-map");
   if (s) return JSON.parse(decodeURIComponent(s));
   else return false;
 }
@@ -23,6 +23,17 @@ function initJsonSubfieldEdit(nm, v, key) {
   }
 }
 
+function initJsonTableEdit(nm, rndid) {
+  const $e = $(`#input${validID(nm)}`);
+  if ($e.length < 1) {
+    $(`#table-edit-${validID(nm)}-${rndid}`).closest("form").append(`
+    <textarea name="${validID(nm)}" class="d-none" id="input${validID(nm)}">
+    ${typeof v === "undefined" ? "" : JSON.stringify(v)}
+    </textarea>
+    `);
+  }
+}
+
 function jsonSubfieldEdit(nm0, key0) {
   const nm = decodeURIComponent(nm0);
   const key = decodeURIComponent(key0);
@@ -37,13 +48,16 @@ function jsonSubfieldEdit(nm0, key0) {
   $(`#input${validID(nm)}`).val(s);
 }
 
-function jsonTableEdit(nm0) {
+function jsonTableEdit(nm0, rndid) {
   const nm = decodeURIComponent(nm0);
 
   const schemaMap = getSchemaMap(nm);
 
   const obj = {};
-  $(`#table-edit-${encodeURIComponent(nm)} tr`).each(function (i, row) {
+  $(`#table-edit-${encodeURIComponent(nm)}-${rndid} tr`).each(function (
+    i,
+    row
+  ) {
     // reference all the stuff you need first
     const $row = $(row);
     let k;
@@ -69,7 +83,7 @@ function jsonTableEdit(nm0) {
         velem.replaceWith(
           `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
             nm
-          )}')">`
+          )}', '${rndid}')">`
         );
     } else {
       const elemVal = velem.val();
@@ -78,7 +92,7 @@ function jsonTableEdit(nm0) {
         velem.replaceWith(
           `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
             nm
-          )}')" value="">`
+          )}', '${rndid}')" value="">`
         );
     }
   });
@@ -92,7 +106,7 @@ function jsonTableEdit(nm0) {
   $(`#input${validID(nm)}`).val(s);
 }
 
-function jsonTableAddRow(nm) {
+function jsonTableAddRow(nm, rndid) {
   const schemaMap = getSchemaMap(nm);
   let allowUserDefined = false;
   if (schemaMap && schemaMap._allowUserDefined) {
@@ -104,39 +118,39 @@ function jsonTableAddRow(nm) {
     schemaMap && !schemaMap._all_keys
       ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
           nm
-        )}')">
+        )}', '${rndid}')">
         ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
         ${allowUserDefined ? `<option>Other...</option>` : ""}
        </select>${
          allowUserDefined
            ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${encodeURIComponent(
                nm
-             )}')" value="">`
+             )}', '${rndid}')" value="">`
            : ""
        }`
       : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
           nm
-        )}')" value="">`;
+        )}', '${rndid}')" value="">`;
   const valInput =
     schemaMap && schemaMap[schemaKeys[0]].type === "Bool"
       ? `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
           nm
-        )}')">`
+        )}', '${rndid}')">`
       : `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
           nm
-        )}')" value="">`;
-  $(`#table-edit-${encodeURIComponent(nm)}`).append(`
+        )}', '${rndid}')" value="">`;
+  $(`#table-edit-${encodeURIComponent(nm)}-${rndid}`).append(`
   <tr>
     <td>${keyInput}</td>
     <td>${valInput}<span class="units"></span></td>
     <td><i class="fas fa-times" onclick="jsonTableDeleteRow('${encodeURIComponent(
       nm
-    )}', this)"></i></td>
+    )}','${rndid}', this)"></i></td>
   </tr>
   `);
 }
 
-function jsonTableDeleteRow(nm, that) {
+function jsonTableDeleteRow(nm, rndid, that) {
   $(that).closest("tr").remove();
-  jsonTableEdit(nm);
+  jsonTableEdit(nm, rndid);
 }
