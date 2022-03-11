@@ -350,16 +350,13 @@ const json = {
           field_name = path.join("_");
         }
 
-        console.log({ column, field_name, schemaKeys, attributes });
         const getCol = (k) => ({
           label: column.header_label ? `${column.header_label} ${k}` : k,
           row_key: [field_name, k],
-          key: (r) => {
-            console.log(r);
-            return field_name && typeof r[field_name]?.[k] !== "undefined"
+          key: (r) =>
+            field_name && typeof r[field_name]?.[k] !== "undefined"
               ? r[field_name]?.[k]
-              : "";
-          },
+              : "",
         });
         return hasSchema
           ? schemaKeys.filter((k) => attributes[k]).map(getCol)
