@@ -321,7 +321,7 @@ const json = {
         );
       },
     },
-    splayKeys: {
+    keys_expand_columns: {
       isEdit: false,
       configFields: (field) => {
         const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
