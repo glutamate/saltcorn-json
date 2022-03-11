@@ -343,14 +343,23 @@ const json = {
       },
       expandColumns: (field, attributes, column) => {
         const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
-        const field_name = column.field_name;
+        let field_name = column.field_name;
+
+        if (!field_name && column.join_field) {
+          const path = column.join_field.split(".");
+          field_name = path.join("_");
+        }
+
+        console.log({ column, field_name, schemaKeys, attributes });
         const getCol = (k) => ({
           label: column.header_label ? `${column.header_label} ${k}` : k,
           row_key: [field_name, k],
-          key: (r) =>
-            field_name && typeof r[field_name]?.[k] !== "undefined"
+          key: (r) => {
+            console.log(r);
+            return field_name && typeof r[field_name]?.[k] !== "undefined"
               ? r[field_name]?.[k]
-              : "",
+              : "";
+          },
         });
         return hasSchema
           ? schemaKeys.filter((k) => attributes[k]).map(getCol)
