@@ -321,6 +321,55 @@ const json = {
         );
       },
     },
+    splayKeys: {
+      isEdit: false,
+      configFields: (field) => {
+        const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+
+        return hasSchema
+          ? schemaKeys.map((k) => ({
+              name: k,
+              label: k,
+              type: "Bool",
+            }))
+          : [
+              {
+                name: "keys",
+                label: "Keys",
+                type: "String",
+                sublabel: "Separate keys by commas",
+              },
+            ];
+      },
+      expandColumns: (field, attributes, column) => {
+        const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+        const field_name = column.field_name;
+        const getCol = (k) => ({
+          label: column.header_label ? `${column.header_label} ${k}` : k,
+          key: (r) =>
+            field_name && typeof r[field_name]?.[k] !== "undefined"
+              ? r[field_name]?.[k]
+              : "",
+        });
+        return hasSchema
+          ? schemaKeys.filter((k) => attributes[k]).map(getCol)
+          : attributes.keys
+              .split()
+              .map((s) => s.trim())
+              .map(getCol);
+      },
+      run: (v, req, options) => {
+        const { schemaMap } = getSchemaMap(options);
+        if (
+          options &&
+          options.key &&
+          v &&
+          typeof v[options.key] !== "undefined"
+        )
+          return text_attr(v[options.key]) + showUnits(schemaMap, options.key);
+        else return "";
+      },
+    },
   },
   attributes:
     features && features.fieldrepeats_in_field_attributes
