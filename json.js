@@ -346,6 +346,7 @@ const json = {
         const field_name = column.field_name;
         const getCol = (k) => ({
           label: column.header_label ? `${column.header_label} ${k}` : k,
+          row_key: [field_name, k],
           key: (r) =>
             field_name && typeof r[field_name]?.[k] !== "undefined"
               ? r[field_name]?.[k]
