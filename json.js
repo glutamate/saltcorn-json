@@ -201,7 +201,11 @@ const json = {
         const rndid = Math.floor(Math.random() * 16777215).toString(16);
         return (
           script(
-            domReady(`initJsonTableEdit(${JSON.stringify(nm)}, '${rndid}')`)
+            domReady(
+              `initJsonTableEdit(${JSON.stringify(
+                nm
+              )}, '${rndid}', ${JSON.stringify(v)})`
+            )
           ) +
           table(
             {

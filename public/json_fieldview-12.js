@@ -23,7 +23,7 @@ function initJsonSubfieldEdit(nm, v, key) {
   }
 }
 
-function initJsonTableEdit(nm, rndid) {
+function initJsonTableEdit(nm, rndid, v) {
   const $e = $(`#input${validID(nm)}`);
   if ($e.length < 1) {
     $(`#table-edit-${validID(nm)}-${rndid}`).closest("form").append(`
@@ -103,6 +103,7 @@ function jsonTableEdit(nm0, rndid) {
         : $(item).val();
   });
   const s = JSON.stringify(obj);
+  console.log("edit to", s);
   $(`#input${validID(nm)}`).val(s);
 }
 
