@@ -381,6 +381,55 @@ const json = {
         else return "";
       },
     },
+    ...(features?.json_state_query
+      ? {
+          jsonFilter: {
+            isEdit: false,
+            isFilter: true,
+            configFields: (field) => {
+              const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+              return hasSchema
+                ? [
+                    {
+                      name: "key",
+                      label: "Key",
+                      type: "String",
+                      required: true,
+                      attributes: { options: ["", ...schemaKeys] },
+                    },
+                  ]
+                : [
+                    {
+                      name: "key",
+                      label: "Key",
+                      type: "String",
+                    },
+                  ];
+            },
+            run: (nm, v, attrs, cls, required, field, state = {}) => {
+              const { hasSchema, schemaMap } = getSchemaMap(attrs);
+              const stateKey = encodeURIComponent(`${nm}[${attrs.key}]`);
+              const stateValue = state[nm]?.[attrs.key];
+              console.log({ state, stateKey });
+              return (
+                input({
+                  type:
+                    hasSchema && schemaMap[attrs.key]?.type === "Bool"
+                      ? "checkbox"
+                      : "text",
+                  onChange: `set_state_field('${stateKey}', this.value)`,
+                  value: stateValue || "",
+                  checked:
+                    (hasSchema &&
+                      schemaMap[attrs.key]?.type === "Bool" &&
+                      stateKey) ||
+                    false,
+                }) + showUnits(schemaMap, attrs.key)
+              );
+            },
+          },
+        }
+      : {}),
   },
   attributes:
     features && features.fieldrepeats_in_field_attributes
