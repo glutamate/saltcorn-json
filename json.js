@@ -409,14 +409,17 @@ const json = {
             blockDisplay: true,
             /* https://stackoverflow.com/a/31083391 */
             run: (nm, v, attrs = {}, cls, required, field, state = {}) => {
-              const stateKey = encodeURIComponent(`${nm}[${attrs.key}]`);
+              const stateKeyLte = encodeURIComponent(`${nm}[${attrs.key}__lte]`);
+              const stateKeyGte = encodeURIComponent(`${nm}[${attrs.key}__gte]`);
+              const stateValueLte = state[nm]?.[`${attrs.key}__lte`];
+              const stateValueGte = state[nm]?.[`${attrs.key}__gte`];
               return section(
                 { class: ["range-slider", cls] },
                 span({ class: "rangeValues" }),
                 input({
-                  ...(isdef(state[`${stateKey}_gte`])
+                  ...(isdef(stateValueGte)
                     ? {
-                        value: text_attr(state[`${stateKey}_gte`]),
+                        value: text_attr(stateValueGte),
                       }
                     : isdef(attrs.min)
                     ? { value: text_attr(attrs.min) }
@@ -425,12 +428,12 @@ const json = {
                   ...(isdef(attrs.min) && { min: attrs.min }),
                   type: "range",
                   disabled: attrs.disabled,
-                  onChange: `set_state_field('${stateKey}_gte', this.value)`,
+                  onChange: `set_state_field('${stateKeyGte}', this.value)`,
                 }),
                 input({
-                  ...(isdef(state[`${stateKey}_lte`])
+                  ...(isdef(stateValueLte)
                     ? {
-                        value: text_attr(state[`${stateKey}_lte`]),
+                        value: text_attr(stateValueLte),
                       }
                     : isdef(attrs.max)
                     ? { value: text_attr(attrs.max) }
@@ -439,7 +442,7 @@ const json = {
                   ...(isdef(attrs.min) && { min: attrs.min }),
                   type: "range",
                   disabled: attrs.disabled,
-                  onChange: `set_state_field('${stateKey}_lte', this.value)`,
+                  onChange: `set_state_field('${stateKeyLte}', this.value)`,
                 })
               );
             },
