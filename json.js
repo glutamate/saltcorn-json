@@ -410,7 +410,6 @@ const json = {
               const { hasSchema, schemaMap } = getSchemaMap(attrs);
               const stateKey = encodeURIComponent(`${nm}[${attrs.key}]`);
               const stateValue = state[nm]?.[attrs.key];
-              console.log({ state, stateKey });
               return (
                 input({
                   type:
