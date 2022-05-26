@@ -17,6 +17,7 @@ const {
   option,
   span,
   nbsp,
+  section,
 } = require("@saltcorn/markup/tags");
 const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
 const { features } = require("@saltcorn/data/db/state");
@@ -35,6 +36,9 @@ const getSchemaMap = (attrs) => {
   }
   return { hasSchema, schemaMap, schemaKeys };
 };
+
+const isdef = (x) => (typeof x === "undefined" || x === null ? false : true);
+
 
 const showUnits = (schemaMap, k) =>
   nbsp + span({ class: "units" }, (schemaMap && schemaMap[k]?.units) || "");
@@ -383,6 +387,63 @@ const json = {
     },
     ...(features?.json_state_query
       ? {
+          jsonRangeFilter: {
+            configFields: (field) => {
+              const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+              return [
+                {
+                  name: "key",
+                  label: "Key",
+                  type: "String",
+                  required: true,
+                  attributes: schemaKeys
+                    ? { options: ["", ...schemaKeys] }
+                    : undefined,
+                },
+                { name: "min", type: "Float", required: false },
+                { name: "max", type: "Float", required: false },
+              ];
+            },
+            isEdit: false,
+            isFilter: true,
+            blockDisplay: true,
+            /* https://stackoverflow.com/a/31083391 */
+            run: (nm, v, attrs = {}, cls, required, field, state = {}) => {
+              const stateKey = encodeURIComponent(`${nm}[${attrs.key}]`);
+              return section(
+                { class: ["range-slider", cls] },
+                span({ class: "rangeValues" }),
+                input({
+                  ...(isdef(state[`${stateKey}_gte`])
+                    ? {
+                        value: text_attr(state[`${stateKey}_gte`]),
+                      }
+                    : isdef(attrs.min)
+                    ? { value: text_attr(attrs.min) }
+                    : {}),
+                  ...(isdef(attrs.max) && { max: attrs.max }),
+                  ...(isdef(attrs.min) && { min: attrs.min }),
+                  type: "range",
+                  disabled: attrs.disabled,
+                  onChange: `set_state_field('${stateKey}_gte', this.value)`,
+                }),
+                input({
+                  ...(isdef(state[`${stateKey}_lte`])
+                    ? {
+                        value: text_attr(state[`${stateKey}_lte`]),
+                      }
+                    : isdef(attrs.max)
+                    ? { value: text_attr(attrs.max) }
+                    : {}),
+                  ...(isdef(attrs.max) && { max: attrs.max }),
+                  ...(isdef(attrs.min) && { min: attrs.min }),
+                  type: "range",
+                  disabled: attrs.disabled,
+                  onChange: `set_state_field('${stateKey}_lte', this.value)`,
+                })
+              );
+            },
+          },
           jsonFilter: {
             isEdit: false,
             isFilter: true,
