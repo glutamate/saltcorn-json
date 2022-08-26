@@ -27,8 +27,8 @@ const getSchemaMap = (attrs) => {
   let schemaKeys = [];
   const hasSchema = attrs && attrs.hasSchema && attrs.schema;
   if (hasSchema) {
-    attrs.schema.forEach(({ key, type, units }) => {
-      schemaMap[key] = { type, units };
+    attrs.schema.forEach(({ key, type, units, options }) => {
+      schemaMap[key] = { type, units, options };
       schemaKeys.push(key);
     });
     if (attrs.allowUserDefined) schemaMap._allowUserDefined = true;
@@ -47,9 +47,9 @@ const showUnits = (schemaMap, k) =>
 function validID(s) {
   return s
     ? s
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
     : s;
 }
 const encode = (s) => (s ? encodeURIComponent(s).replace(/'/g, "%27") : s);
@@ -68,21 +68,21 @@ const json = {
 
         return hasSchema
           ? [
-              {
-                name: "key",
-                label: "Key",
-                type: "String",
-                required: true,
-                attributes: { options: ["", ...schemaKeys] },
-              },
-            ]
+            {
+              name: "key",
+              label: "Key",
+              type: "String",
+              required: true,
+              attributes: { options: ["", ...schemaKeys] },
+            },
+          ]
           : [
-              {
-                name: "key",
-                label: "Key",
-                type: "String",
-              },
-            ];
+            {
+              name: "key",
+              label: "Key",
+              type: "String",
+            },
+          ];
       },
       run: (v, req, options) => {
         const { schemaMap } = getSchemaMap(options);
@@ -102,21 +102,21 @@ const json = {
         const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
         return hasSchema
           ? [
-              {
-                name: "key",
-                label: "Key",
-                type: "String",
-                required: true,
-                attributes: { options: ["", ...schemaKeys] },
-              },
-            ]
+            {
+              name: "key",
+              label: "Key",
+              type: "String",
+              required: true,
+              attributes: { options: ["", ...schemaKeys] },
+            },
+          ]
           : [
-              {
-                name: "key",
-                label: "Key",
-                type: "String",
-              },
-            ];
+            {
+              name: "key",
+              label: "Key",
+              type: "String",
+            },
+          ];
       },
       run: (nm, v, attrs, cls, required, field) => {
         const { hasSchema, schemaMap } = getSchemaMap(attrs);
@@ -128,24 +128,38 @@ const json = {
               )}, ${JSON.stringify(attrs.key)})`
             )
           ) +
-          input({
-            type:
-              hasSchema && schemaMap[attrs.key]?.type === "Bool"
-                ? "checkbox"
-                : "text",
-            class: `json_subfield_edit_${validID(nm)}`,
-            "data-subfield": encode(attrs.key),
-            id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
-            onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
-              attrs.key
-            )}')`,
-            value: v ? v[attrs.key] || "" : "",
-            checked:
-              hasSchema &&
-              schemaMap[attrs.key]?.type === "Bool" &&
-              v &&
-              v[attrs.key],
-          }) +
+          (hasSchema && schemaMap[attrs.key]?.options ?
+            select(
+              {
+                class: `json_subfield_edit_${validID(nm)}`,
+                "data-subfield": encode(attrs.key),
+                id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
+                onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
+                  attrs.key
+                )}')`,
+                value: v ? v[attrs.key] || "" : "",
+              },
+              option({ selected: !(v?.[attrs.key]) }, ""),
+              schemaMap[attrs.key].options.split(",").map(o => option({ selected: v?.[attrs.key] === o.trim() }, o.trim()))
+            ) :
+            input({
+              type:
+                hasSchema && schemaMap[attrs.key]?.type === "Bool"
+                  ? "checkbox"
+                  : "text",
+              class: `json_subfield_edit_${validID(nm)}`,
+              "data-subfield": encode(attrs.key),
+              id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
+              onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
+                attrs.key
+              )}')`,
+              value: v ? v[attrs.key] || "" : "",
+              checked:
+                hasSchema &&
+                schemaMap[attrs.key]?.type === "Bool" &&
+                v &&
+                v[attrs.key],
+            })) +
           showUnits(schemaMap, attrs.key)
         );
       },
@@ -162,14 +176,14 @@ const json = {
         return typeof v !== "object" || !v
           ? ""
           : table(
-              { class: "table table-sm" },
-              Object.entries(v).map(([k, v]) =>
-                tr(
-                  th(k),
-                  td(v === false ? "false" : text(v) + showUnits(schemaMap, k))
-                )
+            { class: "table table-sm" },
+            Object.entries(v).map(([k, v]) =>
+              tr(
+                th(k),
+                td(v === false ? "false" : text(v) + showUnits(schemaMap, k))
               )
-            );
+            )
+          );
       },
     },
     edit: {
@@ -191,12 +205,12 @@ const json = {
         const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
         return hasSchema
           ? [
-              {
-                name: "all_keys",
-                label: "All keys",
-                type: "Bool",
-              },
-            ]
+            {
+              name: "all_keys",
+              label: "All keys",
+              type: "Bool",
+            },
+          ]
           : [];
       },
       run: (nm, v, attrs, cls) => {
@@ -221,111 +235,111 @@ const json = {
             },
             hasSchema && attrs.all_keys
               ? [...new Set([...schemaKeys, ...Object.keys(v || {})])].map(
-                  (k) =>
-                    tr(
-                      th(k),
-                      td(
-                        schemaMap[k]?.type === "Bool"
-                          ? input({
-                              type: "checkbox",
-                              class: "json_value",
-                              onChange: `jsonTableEdit('${encode(
-                                nm
-                              )}', '${rndid}')`,
-                              checked: (v || {})[k],
-                            })
-                          : input({
-                              type: "text",
-                              class: "json_value",
-                              onChange: `jsonTableEdit('${encode(
-                                nm
-                              )}', '${rndid}')`,
-                              value: (v || {})[k],
-                            }) + showUnits(schemaMap, k)
-                      )
-                    )
-                )
-              : Object.entries(v || {}).map(([k, v]) =>
+                (k) =>
                   tr(
+                    th(k),
                     td(
-                      hasSchema
-                        ? select(
-                            {
-                              class: "json_key",
-                              onChange: `jsonTableEdit('${encodeURIComponent(
-                                nm
-                              )}', '${rndid}')`,
-                            },
-                            attrs.schema.map(({ key }) =>
-                              option({ selected: key === k }, key)
-                            ),
-                            attrs.allowUserDefined &&
-                              option(
-                                { selected: !schemaKeys.includes(k) },
-                                "Other..."
-                              )
-                          ) +
-                            (attrs.allowUserDefined
-                              ? input({
-                                  type: schemaKeys.includes(k)
-                                    ? "hidden"
-                                    : "text",
-                                  class: "json_key_other d-block",
-                                  onChange: `jsonTableEdit('${encode(
-                                    nm
-                                  )}', '${rndid}')`,
-                                  value: k,
-                                })
-                              : "")
-                        : input({
-                            type: "text",
-                            class: "json_key",
-                            onChange: `jsonTableEdit('${encode(
-                              nm
-                            )}', '${rndid}')`,
-                            value: k,
-                          })
-                    ),
-                    td(
-                      hasSchema && schemaMap[k]?.type === "Bool"
+                      schemaMap[k]?.type === "Bool"
                         ? input({
-                            type: "checkbox",
-                            class: "json_value",
-                            onChange: `jsonTableEdit('${encode(
-                              nm
-                            )}', '${rndid}')`,
-                            checked: v,
-                          })
+                          type: "checkbox",
+                          class: "json_value",
+                          onChange: `jsonTableEdit('${encode(
+                            nm
+                          )}', '${rndid}')`,
+                          checked: (v || {})[k],
+                        })
                         : input({
-                            type: "text",
-                            class: "json_value",
-                            onChange: `jsonTableEdit('${encode(
-                              nm
-                            )}', '${rndid}')`,
-                            value: v,
-                          }) + showUnits(schemaMap, k)
-                    ),
-                    td(
-                      i({
-                        class: "fas fa-times",
-                        onClick: `jsonTableDeleteRow('${encode(
-                          nm
-                        )}','${rndid}', this)`,
-                      })
+                          type: "text",
+                          class: "json_value",
+                          onChange: `jsonTableEdit('${encode(
+                            nm
+                          )}', '${rndid}')`,
+                          value: (v || {})[k],
+                        }) + showUnits(schemaMap, k)
                     )
                   )
+              )
+              : Object.entries(v || {}).map(([k, v]) =>
+                tr(
+                  td(
+                    hasSchema
+                      ? select(
+                        {
+                          class: "json_key",
+                          onChange: `jsonTableEdit('${encodeURIComponent(
+                            nm
+                          )}', '${rndid}')`,
+                        },
+                        attrs.schema.map(({ key }) =>
+                          option({ selected: key === k }, key)
+                        ),
+                        attrs.allowUserDefined &&
+                        option(
+                          { selected: !schemaKeys.includes(k) },
+                          "Other..."
+                        )
+                      ) +
+                      (attrs.allowUserDefined
+                        ? input({
+                          type: schemaKeys.includes(k)
+                            ? "hidden"
+                            : "text",
+                          class: "json_key_other d-block",
+                          onChange: `jsonTableEdit('${encode(
+                            nm
+                          )}', '${rndid}')`,
+                          value: k,
+                        })
+                        : "")
+                      : input({
+                        type: "text",
+                        class: "json_key",
+                        onChange: `jsonTableEdit('${encode(
+                          nm
+                        )}', '${rndid}')`,
+                        value: k,
+                      })
+                  ),
+                  td(
+                    hasSchema && schemaMap[k]?.type === "Bool"
+                      ? input({
+                        type: "checkbox",
+                        class: "json_value",
+                        onChange: `jsonTableEdit('${encode(
+                          nm
+                        )}', '${rndid}')`,
+                        checked: v,
+                      })
+                      : input({
+                        type: "text",
+                        class: "json_value",
+                        onChange: `jsonTableEdit('${encode(
+                          nm
+                        )}', '${rndid}')`,
+                        value: v,
+                      }) + showUnits(schemaMap, k)
+                  ),
+                  td(
+                    i({
+                      class: "fas fa-times",
+                      onClick: `jsonTableDeleteRow('${encode(
+                        nm
+                      )}','${rndid}', this)`,
+                    })
+                  )
                 )
+              )
           ) +
           (hasSchema && attrs.all_keys && !attrs.allowUserDefined
             ? ""
             : button(
-                {
-                  class: "btn btn-primary btn-sm",
-                  type: "button",
-                  onClick: `jsonTableAddRow('${encode(nm)}', '${rndid}')`,
-                },
-                "Add entry"
-              ))
+              {
+                class: "btn btn-primary btn-sm",
+                type: "button",
+                onClick: `jsonTableAddRow('${encode(nm)}', '${rndid}')`,
+              },
+              "Add entry"
+            ))
         );
       },
     },
@@ -336,18 +350,18 @@ const json = {
 
         return hasSchema
           ? schemaKeys.map((k) => ({
-              name: k,
-              label: k,
-              type: "Bool",
-            }))
+            name: k,
+            label: k,
+            type: "Bool",
+          }))
           : [
-              {
-                name: "keys",
-                label: "Keys",
-                type: "String",
-                sublabel: "Separate keys by commas",
-              },
-            ];
+            {
+              name: "keys",
+              label: "Keys",
+              type: "String",
+              sublabel: "Separate keys by commas",
+            },
+          ];
       },
       expandColumns: (field, attributes, column) => {
         const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
@@ -369,9 +383,9 @@ const json = {
         return hasSchema
           ? schemaKeys.filter((k) => attributes[k]).map(getCol)
           : attributes.keys
-              .split()
-              .map((s) => s.trim())
-              .map(getCol);
+            .split()
+            .map((s) => s.trim())
+            .map(getCol);
       },
       run: (v, req, options) => {
         const { schemaMap } = getSchemaMap(options);
@@ -387,147 +401,156 @@ const json = {
     },
     ...(features?.json_state_query
       ? {
-          jsonRangeFilter: {
-            configFields: (field) => {
-              const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
-              return [
+        jsonRangeFilter: {
+          configFields: (field) => {
+            const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+            return [
+              {
+                name: "key",
+                label: "Key",
+                type: "String",
+                required: true,
+                attributes: schemaKeys
+                  ? { options: ["", ...schemaKeys] }
+                  : undefined,
+              },
+              { name: "min", type: "Float", required: false },
+              { name: "max", type: "Float", required: false },
+            ];
+          },
+          isEdit: false,
+          isFilter: true,
+          blockDisplay: true,
+          /* https://stackoverflow.com/a/31083391 */
+          run: (nm, v, attrs = {}, cls, required, field, state = {}) => {
+            const stateKeyLte = encodeURIComponent(`${nm}[${attrs.key}__lte]`);
+            const stateKeyGte = encodeURIComponent(`${nm}[${attrs.key}__gte]`);
+            const stateValueLte = state[nm]?.[`${attrs.key}__lte`];
+            const stateValueGte = state[nm]?.[`${attrs.key}__gte`];
+            return section(
+              { class: ["range-slider", cls] },
+              span({ class: "rangeValues" }),
+              input({
+                ...(isdef(stateValueGte)
+                  ? {
+                    value: text_attr(stateValueGte),
+                  }
+                  : isdef(attrs.min)
+                    ? { value: text_attr(attrs.min) }
+                    : {}),
+                ...(isdef(attrs.max) && { max: attrs.max }),
+                ...(isdef(attrs.min) && { min: attrs.min }),
+                type: "range",
+                disabled: attrs.disabled,
+                onChange: `set_state_field('${stateKeyGte}', this.value)`,
+              }),
+              input({
+                ...(isdef(stateValueLte)
+                  ? {
+                    value: text_attr(stateValueLte),
+                  }
+                  : isdef(attrs.max)
+                    ? { value: text_attr(attrs.max) }
+                    : {}),
+                ...(isdef(attrs.max) && { max: attrs.max }),
+                ...(isdef(attrs.min) && { min: attrs.min }),
+                type: "range",
+                disabled: attrs.disabled,
+                onChange: `set_state_field('${stateKeyLte}', this.value)`,
+              })
+            );
+          },
+        },
+        jsonFilter: {
+          isEdit: false,
+          isFilter: true,
+          configFields: (field) => {
+            const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+            return hasSchema
+              ? [
                 {
                   name: "key",
                   label: "Key",
                   type: "String",
                   required: true,
-                  attributes: schemaKeys
-                    ? { options: ["", ...schemaKeys] }
-                    : undefined,
+                  attributes: { options: ["", ...schemaKeys] },
                 },
-                { name: "min", type: "Float", required: false },
-                { name: "max", type: "Float", required: false },
+              ]
+              : [
+                {
+                  name: "key",
+                  label: "Key",
+                  type: "String",
+                },
               ];
-            },
-            isEdit: false,
-            isFilter: true,
-            blockDisplay: true,
-            /* https://stackoverflow.com/a/31083391 */
-            run: (nm, v, attrs = {}, cls, required, field, state = {}) => {
-              const stateKeyLte = encodeURIComponent(`${nm}[${attrs.key}__lte]`);
-              const stateKeyGte = encodeURIComponent(`${nm}[${attrs.key}__gte]`);
-              const stateValueLte = state[nm]?.[`${attrs.key}__lte`];
-              const stateValueGte = state[nm]?.[`${attrs.key}__gte`];
-              return section(
-                { class: ["range-slider", cls] },
-                span({ class: "rangeValues" }),
-                input({
-                  ...(isdef(stateValueGte)
-                    ? {
-                        value: text_attr(stateValueGte),
-                      }
-                    : isdef(attrs.min)
-                    ? { value: text_attr(attrs.min) }
-                    : {}),
-                  ...(isdef(attrs.max) && { max: attrs.max }),
-                  ...(isdef(attrs.min) && { min: attrs.min }),
-                  type: "range",
-                  disabled: attrs.disabled,
-                  onChange: `set_state_field('${stateKeyGte}', this.value)`,
-                }),
-                input({
-                  ...(isdef(stateValueLte)
-                    ? {
-                        value: text_attr(stateValueLte),
-                      }
-                    : isdef(attrs.max)
-                    ? { value: text_attr(attrs.max) }
-                    : {}),
-                  ...(isdef(attrs.max) && { max: attrs.max }),
-                  ...(isdef(attrs.min) && { min: attrs.min }),
-                  type: "range",
-                  disabled: attrs.disabled,
-                  onChange: `set_state_field('${stateKeyLte}', this.value)`,
-                })
-              );
-            },
           },
-          jsonFilter: {
-            isEdit: false,
-            isFilter: true,
-            configFields: (field) => {
-              const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
-              return hasSchema
-                ? [
-                    {
-                      name: "key",
-                      label: "Key",
-                      type: "String",
-                      required: true,
-                      attributes: { options: ["", ...schemaKeys] },
-                    },
-                  ]
-                : [
-                    {
-                      name: "key",
-                      label: "Key",
-                      type: "String",
-                    },
-                  ];
-            },
-            run: (nm, v, attrs, cls, required, field, state = {}) => {
-              const { hasSchema, schemaMap } = getSchemaMap(attrs);
-              const stateKey = encodeURIComponent(`${nm}[${attrs.key}]`);
-              const stateValue = state[nm]?.[attrs.key];
-              return (
-                input({
-                  type:
-                    hasSchema && schemaMap[attrs.key]?.type === "Bool"
-                      ? "checkbox"
-                      : "text",
-                  onChange: `set_state_field('${stateKey}', this.value)`,
-                  value: stateValue || "",
-                  checked:
-                    (hasSchema &&
-                      schemaMap[attrs.key]?.type === "Bool" &&
-                      stateKey) ||
-                    false,
-                }) + showUnits(schemaMap, attrs.key)
-              );
-            },
+          run: (nm, v, attrs, cls, required, field, state = {}) => {
+            const { hasSchema, schemaMap } = getSchemaMap(attrs);
+            const stateKey = encodeURIComponent(`${nm}[${attrs.key}]`);
+            const stateValue = state[nm]?.[attrs.key];
+            return (
+              input({
+                type:
+                  hasSchema && schemaMap[attrs.key]?.type === "Bool"
+                    ? "checkbox"
+                    : "text",
+                onChange: `set_state_field('${stateKey}', this.value)`,
+                value: stateValue || "",
+                checked:
+                  (hasSchema &&
+                    schemaMap[attrs.key]?.type === "Bool" &&
+                    stateKey) ||
+                  false,
+              }) + showUnits(schemaMap, attrs.key)
+            );
           },
-        }
+        },
+      }
       : {}),
   },
   attributes:
     features && features.fieldrepeats_in_field_attributes
       ? [
-          { name: "hasSchema", label: "Has Schema", type: "Bool" },
-          {
-            name: "allowUserDefined",
-            label: "Allow new keys",
-            type: "Bool",
-            showIf: { hasSchema: true },
-            sublabel:
-              "Allow the user to enter a new key that is not in the schema",
-          },
-          new FieldRepeat({
-            name: "schema",
-            label: "Schema",
-            showIf: { hasSchema: true },
-            fields: [
-              { name: "key", label: "Key", type: "String" },
-              {
-                name: "type",
-                label: "Type",
-                type: "String",
-                required: true,
-                attributes: { options: ["String", "Integer", "Float", "Bool"] },
-              },
-              {
-                name: "units",
-                label: "Units",
-                type: "String",
-                showIf: { type: "Float" },
-              },
-            ],
-          }),
-        ]
+        { name: "hasSchema", label: "Has Schema", type: "Bool" },
+        {
+          name: "allowUserDefined",
+          label: "Allow new keys",
+          type: "Bool",
+          showIf: { hasSchema: true },
+          sublabel:
+            "Allow the user to enter a new key that is not in the schema",
+        },
+        new FieldRepeat({
+          name: "schema",
+          label: "Schema",
+          showIf: { hasSchema: true },
+          fields: [
+            { name: "key", label: "Key", type: "String" },
+            {
+              name: "type",
+              label: "Type",
+              type: "String",
+              required: true,
+              attributes: { options: ["String", "Integer", "Float", "Bool"] },
+            },
+            {
+              name: "units",
+              label: "Units",
+              type: "String",
+              showIf: { type: "Float" },
+            },
+            {
+              name: "options",
+              label: "Options",
+              type: "String",
+              required: false,
+              sublabel:
+                'Use this to restrict your field to a list of options (separated by commas). For instance, if the permissible values are "Red", "Green" and "Blue", enter "Red, Green, Blue" here. Leave blank if the string can hold any value.',
+              showIf: { type: "String" },
+            },
+          ],
+        }),
+      ]
       : [],
   read: (v, attrs) => {
     const alignSchema = (o) => {
