@@ -217,6 +217,34 @@ const json = {
         //console.log(attrs);
         const { hasSchema, schemaMap, schemaKeys } = getSchemaMap(attrs);
         const rndid = Math.floor(Math.random() * 16777215).toString(16);
+        const valueInput = (k, val) => schemaMap[k]?.type === "Bool"
+          ? input({
+            type: "checkbox",
+            class: "json_value",
+            onChange: `jsonTableEdit('${encode(
+              nm
+            )}', '${rndid}')`,
+            checked: val,
+          })
+          : schemaMap[k]?.options
+            ? select({
+              class: "json_value",
+              onChange: `jsonTableEdit('${encode(
+                nm
+              )}', '${rndid}')`,
+              value: val,
+            },
+              option({ selected: !(val) }, ""),
+              schemaMap[k].options.split(",").map(o => option({ selected: val === o.trim() }, o.trim()))
+            )
+            : input({
+              type: "text",
+              class: "json_value",
+              onChange: `jsonTableEdit('${encode(
+                nm
+              )}', '${rndid}')`,
+              value: val,
+            }) + showUnits(schemaMap, k)
         return (
           script(
             domReady(
@@ -238,25 +266,7 @@ const json = {
                 (k) =>
                   tr(
                     th(k),
-                    td(
-                      schemaMap[k]?.type === "Bool"
-                        ? input({
-                          type: "checkbox",
-                          class: "json_value",
-                          onChange: `jsonTableEdit('${encode(
-                            nm
-                          )}', '${rndid}')`,
-                          checked: (v || {})[k],
-                        })
-                        : input({
-                          type: "text",
-                          class: "json_value",
-                          onChange: `jsonTableEdit('${encode(
-                            nm
-                          )}', '${rndid}')`,
-                          value: (v || {})[k],
-                        }) + showUnits(schemaMap, k)
-                    )
+                    td(valueInput(k, (v || {})[k]))
                   )
               )
               : Object.entries(v || {}).map(([k, v]) =>
@@ -300,25 +310,7 @@ const json = {
                         value: k,
                       })
                   ),
-                  td(
-                    hasSchema && schemaMap[k]?.type === "Bool"
-                      ? input({
-                        type: "checkbox",
-                        class: "json_value",
-                        onChange: `jsonTableEdit('${encode(
-                          nm
-                        )}', '${rndid}')`,
-                        checked: v,
-                      })
-                      : input({
-                        type: "text",
-                        class: "json_value",
-                        onChange: `jsonTableEdit('${encode(
-                          nm
-                        )}', '${rndid}')`,
-                        value: v,
-                      }) + showUnits(schemaMap, k)
-                  ),
+                  td(valueInput(k, v)),
                   td(
                     i({
                       class: "fas fa-times",
