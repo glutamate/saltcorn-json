@@ -7,9 +7,9 @@ function getSchemaMap(nm) {
 function validID(s) {
   return s
     ? s
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
     : s;
 }
 function initJsonSubfieldEdit(nm, v, key) {
@@ -41,7 +41,7 @@ function jsonSubfieldEdit(nm0, key0) {
   try {
     const valStr = $(`#input${validID(nm)}`).val();
     obj = JSON.parse(valStr);
-  } catch {}
+  } catch { }
   const $e = $(`#json_subfield_${validID(nm)}_${validID(key)}`);
   obj[key] = $e.attr("type") === "checkbox" ? $e.prop("checked") : $e.val();
   const s = JSON.stringify(obj);
@@ -71,7 +71,7 @@ function jsonTableEdit(nm0, rndid) {
     } else {
       $row.find("input.json_key_other").attr("type", "hidden");
     }
-    const velem = $row.find("input.json_value");
+    const velem = $row.find("input.json_value,select.json_value");
     if (schemaMap && schemaMap[k]?.units) {
       $row.find("td:nth-child(2) span.units").html(schemaMap[k].units);
     } else {
@@ -118,35 +118,34 @@ function jsonTableAddRow(nm, rndid) {
   const keyInput =
     schemaMap && !schemaMap._all_keys
       ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
-          nm
-        )}', '${rndid}')">
+        nm
+      )}', '${rndid}')">
         ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
         ${allowUserDefined ? `<option>Other...</option>` : ""}
-       </select>${
-         allowUserDefined
-           ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${encodeURIComponent(
-               nm
-             )}', '${rndid}')" value="">`
-           : ""
-       }`
-      : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+       </select>${allowUserDefined
+        ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${encodeURIComponent(
           nm
-        )}', '${rndid}')" value="">`;
+        )}', '${rndid}')" value="">`
+        : ""
+      }`
+      : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
+        nm
+      )}', '${rndid}')" value="">`;
   const valInput =
     schemaMap && schemaMap[schemaKeys[0]].type === "Bool"
       ? `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
-          nm
-        )}', '${rndid}')">`
+        nm
+      )}', '${rndid}')">`
       : `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
-          nm
-        )}', '${rndid}')" value="">`;
+        nm
+      )}', '${rndid}')" value="">`;
   $(`#table-edit-${encodeURIComponent(nm)}-${rndid}`).append(`
   <tr>
     <td>${keyInput}</td>
     <td>${valInput}<span class="units"></span></td>
     <td><i class="fas fa-times" onclick="jsonTableDeleteRow('${encodeURIComponent(
-      nm
-    )}','${rndid}', this)"></i></td>
+    nm
+  )}','${rndid}', this)"></i></td>
   </tr>
   `);
 }
