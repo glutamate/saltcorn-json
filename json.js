@@ -586,7 +586,10 @@ module.exports = {
 
   headers: [
     {
-      script: "/plugins/public/json/json_fieldview-13.js",
+      script: `/plugins/public/json${features?.version_plugin_serve_path
+        ? "@" + require("./package.json").version
+        : ""
+        }/json_fieldview.js`,
     },
   ],
 };
