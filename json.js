@@ -27,8 +27,8 @@ const getSchemaMap = (attrs) => {
   let schemaKeys = [];
   const hasSchema = attrs && attrs.hasSchema && attrs.schema;
   if (hasSchema) {
-    attrs.schema.forEach(({ key, type, units, options, formula }) => {
-      schemaMap[key] = { type, units, options, formula };
+    attrs.schema.forEach(({ key, ...rest }) => {
+      schemaMap[key] = rest;
       schemaKeys.push(key);
     });
     if (attrs.allowUserDefined) schemaMap._allowUserDefined = true;
@@ -514,7 +514,13 @@ const json = {
       ? () => {
         const tables = getState().tables
         const typeOpts = ["String", "Integer", "Float", "Bool", "Calculation"]
-        tables.forEach(t => { typeOpts.push(`Key to ${t.name}`) })
+        const fkeyOptions = []
+        const sumFieldOptions = {}
+        tables.forEach(t => {
+          typeOpts.push(`Key to ${t.name}`)
+          fkeyOptions.push(`Key to ${t.name}`)
+          sumFieldOptions[`Key to ${t.name}`] = t.fields.map(f => f.name)
+        })
         return [
           { name: "hasSchema", label: "Has Schema", type: "Bool" },
           {
@@ -544,6 +550,15 @@ const json = {
                 class: "validate-expression",
                 type: "String",
                 showIf: { type: "Calculation" },
+              },
+              {
+                name: "summary_field",
+                label: "Summary field",
+                type: "String",
+                showIf: { type: fkeyOptions },
+                attributes: {
+                  calcOptions: ["type", sumFieldOptions],
+                },
               },
               {
                 name: "units",
