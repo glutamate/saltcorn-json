@@ -235,25 +235,42 @@ const json = {
               value: val,
               readonly: true
             })
-            : schemaMap[k]?.options
+            : (schemaMap[k]?.type || "").startsWith("Key to ")
               ? select({
                 class: "json_value",
                 onChange: `jsonTableEdit('${encode(
                   nm
                 )}', '${rndid}')`,
                 value: val,
-              },
-                option({ selected: !(val) }, ""),
-                schemaMap[k].options.split(",").map(o => option({ selected: val === o.trim() }, o.trim()))
-              )
-              : input({
-                type: "text",
-                class: "json_value",
-                onChange: `jsonTableEdit('${encode(
-                  nm
-                )}', '${rndid}')`,
-                value: val,
-              }) + showUnits(schemaMap, k)
+                "data-selected": val,
+                "data-fetch-options": encodeURIComponent(
+                  JSON.stringify({
+                    table: schemaMap[k].type.replace("Key to ", ""),
+                    summary_field: schemaMap[k].summary_field,
+                    whereParsed: {}
+                  })
+                ),
+
+              })
+              : schemaMap[k]?.options
+                ? select({
+                  class: "json_value",
+                  onChange: `jsonTableEdit('${encode(
+                    nm
+                  )}', '${rndid}')`,
+                  value: val,
+                },
+                  option({ selected: !(val) }, ""),
+                  schemaMap[k].options.split(",").map(o => option({ selected: val === o.trim() }, o.trim()))
+                )
+                : input({
+                  type: "text",
+                  class: "json_value",
+                  onChange: `jsonTableEdit('${encode(
+                    nm
+                  )}', '${rndid}')`,
+                  value: val,
+                }) + showUnits(schemaMap, k)
         return (
           script(
             domReady(
