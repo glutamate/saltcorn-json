@@ -20,7 +20,7 @@ const {
   section,
 } = require("@saltcorn/markup/tags");
 const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
-const { features } = require("@saltcorn/data/db/state");
+const { features, getState } = require("@saltcorn/data/db/state");
 
 const getSchemaMap = (attrs) => {
   const schemaMap = {};
@@ -511,54 +511,59 @@ const json = {
   },
   attributes:
     features && features.fieldrepeats_in_field_attributes
-      ? [
-        { name: "hasSchema", label: "Has Schema", type: "Bool" },
-        {
-          name: "allowUserDefined",
-          label: "Allow new keys",
-          type: "Bool",
-          showIf: { hasSchema: true },
-          sublabel:
-            "Allow the user to enter a new key that is not in the schema",
-        },
-        new FieldRepeat({
-          name: "schema",
-          label: "Schema",
-          showIf: { hasSchema: true },
-          fields: [
-            { name: "key", label: "Key", type: "String" },
-            {
-              name: "type",
-              label: "Type",
-              type: "String",
-              required: true,
-              attributes: { options: ["String", "Integer", "Float", "Bool", "Calculation"] },
-            },
-            {
-              name: "formula",
-              label: "Formula",
-              class: "validate-expression",
-              type: "String",
-              showIf: { type: "Calculation" },
-            },
-            {
-              name: "units",
-              label: "Units",
-              type: "String",
-              showIf: { type: "Float" },
-            },
-            {
-              name: "options",
-              label: "Options",
-              type: "String",
-              required: false,
-              sublabel:
-                'Use this to restrict your field to a list of options (separated by commas). For instance, if the permissible values are "Red", "Green" and "Blue", enter "Red, Green, Blue" here. Leave blank if the string can hold any value.',
-              showIf: { type: "String" },
-            },
-          ],
-        }),
-      ]
+      ? () => {
+        const tables = getState().tables
+        const typeOpts = ["String", "Integer", "Float", "Bool", "Calculation"]
+        tables.forEach(t => { typeOpts.push(`Key to ${t.name}`) })
+        return [
+          { name: "hasSchema", label: "Has Schema", type: "Bool" },
+          {
+            name: "allowUserDefined",
+            label: "Allow new keys",
+            type: "Bool",
+            showIf: { hasSchema: true },
+            sublabel:
+              "Allow the user to enter a new key that is not in the schema",
+          },
+          new FieldRepeat({
+            name: "schema",
+            label: "Schema",
+            showIf: { hasSchema: true },
+            fields: [
+              { name: "key", label: "Key", type: "String" },
+              {
+                name: "type",
+                label: "Type",
+                type: "String",
+                required: true,
+                attributes: { options: typeOpts },
+              },
+              {
+                name: "formula",
+                label: "Formula",
+                class: "validate-expression",
+                type: "String",
+                showIf: { type: "Calculation" },
+              },
+              {
+                name: "units",
+                label: "Units",
+                type: "String",
+                showIf: { type: "Float" },
+              },
+              {
+                name: "options",
+                label: "Options",
+                type: "String",
+                required: false,
+                sublabel:
+                  'Use this to restrict your field to a list of options (separated by commas). For instance, if the permissible values are "Red", "Green" and "Blue", enter "Red, Green, Blue" here. Leave blank if the string can hold any value.',
+                showIf: { type: "String" },
+              },
+            ],
+          }),
+        ]
+      }
       : [],
   read: (v, attrs) => {
     const alignSchema = (o) => {
