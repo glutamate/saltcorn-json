@@ -27,8 +27,8 @@ const getSchemaMap = (attrs) => {
   let schemaKeys = [];
   const hasSchema = attrs && attrs.hasSchema && attrs.schema;
   if (hasSchema) {
-    attrs.schema.forEach(({ key, type, units, options }) => {
-      schemaMap[key] = { type, units, options };
+    attrs.schema.forEach(({ key, type, units, options, formula }) => {
+      schemaMap[key] = { type, units, options, formula };
       schemaKeys.push(key);
     });
     if (attrs.allowUserDefined) schemaMap._allowUserDefined = true;
@@ -226,25 +226,34 @@ const json = {
             )}', '${rndid}')`,
             checked: val,
           })
-          : schemaMap[k]?.options
-            ? select({
-              class: "json_value",
-              onChange: `jsonTableEdit('${encode(
-                nm
-              )}', '${rndid}')`,
-              value: val,
-            },
-              option({ selected: !(val) }, ""),
-              schemaMap[k].options.split(",").map(o => option({ selected: val === o.trim() }, o.trim()))
-            )
-            : input({
+          : schemaMap[k]?.type === "Calculation"
+            ? input({
               type: "text",
-              class: "json_value",
-              onChange: `jsonTableEdit('${encode(
-                nm
-              )}', '${rndid}')`,
+              class: "json_calculation",
+              "data-key": k,
+              "data-formula": encodeURIComponent(schemaMap[k].formula),
               value: val,
-            }) + showUnits(schemaMap, k)
+              readonly: true
+            })
+            : schemaMap[k]?.options
+              ? select({
+                class: "json_value",
+                onChange: `jsonTableEdit('${encode(
+                  nm
+                )}', '${rndid}')`,
+                value: val,
+              },
+                option({ selected: !(val) }, ""),
+                schemaMap[k].options.split(",").map(o => option({ selected: val === o.trim() }, o.trim()))
+              )
+              : input({
+                type: "text",
+                class: "json_value",
+                onChange: `jsonTableEdit('${encode(
+                  nm
+                )}', '${rndid}')`,
+                value: val,
+              }) + showUnits(schemaMap, k)
         return (
           script(
             domReady(
@@ -523,7 +532,14 @@ const json = {
               label: "Type",
               type: "String",
               required: true,
-              attributes: { options: ["String", "Integer", "Float", "Bool"] },
+              attributes: { options: ["String", "Integer", "Float", "Bool", "Calculation"] },
+            },
+            {
+              name: "formula",
+              label: "Formula",
+              class: "validate-expression",
+              type: "String",
+              showIf: { type: "Calculation" },
             },
             {
               name: "units",

@@ -102,6 +102,17 @@ function jsonTableEdit(nm0, rndid) {
         ? $(item).prop("checked")
         : $(item).val();
   });
+  $(`#table-edit-${encodeURIComponent(nm)}-${rndid} input.json_calculation`)
+    .each(function (i, calcInput) {
+      const fml = decodeURIComponent($(calcInput).attr("data-formula"))
+      const val = new Function(
+        `{${Object.keys(obj).join(",")}}`,
+        "return " + fml
+      )(obj);
+      $(calcInput).val(val)
+      obj[$(calcInput).attr("data-key")] = val
+    })
+
   const s = JSON.stringify(obj);
   console.log("edit to", s);
   $(`#input${validID(nm)}`).val(s);
