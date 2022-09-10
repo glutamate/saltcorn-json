@@ -128,15 +128,16 @@ const json = {
       },
       run: (nm, v, attrs, cls, required, field) => {
         const { hasSchema, schemaMap } = getSchemaMap(attrs);
+        const k = attrs.key
         return (
           script(
             domReady(
               `initJsonSubfieldEdit(${JSON.stringify(nm)}, ${JSON.stringify(
                 v
-              )}, ${JSON.stringify(attrs.key)})`
+              )}, ${JSON.stringify(k)})`
             )
           ) +
-          (hasSchema && schemaMap[attrs.key]?.options ?
+          (hasSchema && schemaMap[k]?.options ?
             select(
               {
                 class: `json_subfield_edit_${validID(nm)}`,
@@ -145,30 +146,48 @@ const json = {
                 onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
                   attrs.key
                 )}')`,
-                value: v ? v[attrs.key] || "" : "",
+                value: v ? v[k] || "" : "",
               },
-              option({ selected: !(v?.[attrs.key]) }, ""),
-              schemaMap[attrs.key].options.split(",").map(o => option({ selected: v?.[attrs.key] === o.trim() }, o.trim()))
-            ) :
-            input({
-              type:
-                hasSchema && schemaMap[attrs.key]?.type === "Bool"
-                  ? "checkbox"
-                  : hasSchema && ["Integer", "Float"].includes(schemaMap[attrs.key]?.type)
-                    ? "number" : "text",
-              class: `json_subfield_edit_${validID(nm)}`,
-              "data-subfield": encode(attrs.key),
-              id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
-              onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
-                attrs.key
-              )}')`,
-              value: v ? v[attrs.key] || "" : "",
-              checked:
-                hasSchema &&
-                schemaMap[attrs.key]?.type === "Bool" &&
-                v &&
-                v[attrs.key],
-            })) +
+              option({ selected: !(v?.[k]) }, ""),
+              schemaMap[k].options.split(",").map(o => option({ selected: v?.[attrs.key] === o.trim() }, o.trim()))
+            ) : hasSchema && (schemaMap[attrs.key]?.type || "").startsWith("Key to")
+              ? select({
+                class: `json_subfield_edit_${validID(nm)}`,
+                "data-subfield": encode(k),
+                id: `json_subfield_${validID(nm)}_${validID(k)}`,
+                onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
+                  k
+                )}')`,
+                value: v ? v[k] || "" : "",
+                "data-selected": v ? v[k] || "" : "",
+                "data-fetch-options": encodeURIComponent(
+                  JSON.stringify({
+                    table: schemaMap[k].type.replace("Key to ", ""),
+                    summary_field: schemaMap[k].summary_field,
+                    refname: "id",
+                    whereParsed: {}
+                  })
+                ),
+              })
+              : input({
+                type:
+                  hasSchema && schemaMap[attrs.key]?.type === "Bool"
+                    ? "checkbox"
+                    : hasSchema && ["Integer", "Float"].includes(schemaMap[attrs.key]?.type)
+                      ? "number" : "text",
+                class: `json_subfield_edit_${validID(nm)}`,
+                "data-subfield": encode(attrs.key),
+                id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
+                onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
+                  attrs.key
+                )}')`,
+                value: v ? v[attrs.key] || "" : "",
+                checked:
+                  hasSchema &&
+                  schemaMap[attrs.key]?.type === "Bool" &&
+                  v &&
+                  v[attrs.key],
+              })) +
           showUnits(schemaMap, attrs.key)
         );
       },
