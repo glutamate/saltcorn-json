@@ -247,6 +247,7 @@ const json = {
                   JSON.stringify({
                     table: schemaMap[k].type.replace("Key to ", ""),
                     summary_field: schemaMap[k].summary_field,
+                    refname: "id",
                     whereParsed: {}
                   })
                 ),
