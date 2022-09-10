@@ -97,10 +97,12 @@ function jsonTableEdit(nm0, rndid) {
     }
   });
   $(`.json_subfield_edit_${validID(nm)}`).each(function (index, item) {
-    obj[decodeURIComponent($(item).attr("data-subfield"))] =
-      $(item).attr("type") === "checkbox"
-        ? $(item).prop("checked")
-        : $(item).val();
+    let val = $(item).attr("type") === "checkbox"
+      ? $(item).prop("checked")
+      : $(item).val();
+    if ($(item).attr("type") === "number" && val) val = +val
+    obj[decodeURIComponent($(item).attr("data-subfield"))] = val;
+
   });
   $(`#table-edit-${encodeURIComponent(nm)}-${rndid} input.json_calculation`)
     .each(function (i, calcInput) {
