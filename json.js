@@ -154,7 +154,8 @@ const json = {
               type:
                 hasSchema && schemaMap[attrs.key]?.type === "Bool"
                   ? "checkbox"
-                  : "text",
+                  : hasSchema && ["Integer", "Float"].includes(schemaMap[attrs.key]?.type)
+                    ? "number" : "text",
               class: `json_subfield_edit_${validID(nm)}`,
               "data-subfield": encode(attrs.key),
               id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
