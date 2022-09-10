@@ -171,8 +171,13 @@ const json = {
     show_table: {
       isEdit: false,
       run: (v, req, options) => {
-        const { schemaMap } = getSchemaMap(options);
-
+        const { hasSchema, schemaMap } = getSchemaMap(options);
+        const showVal = (k, v) => hasSchema && (schemaMap[k]?.type || "").startsWith("Key to ")
+          ? span({
+            "data-source-url": `/field/show-calculated/${schemaMap[k].type.replace("Key to ", "")
+              }/${schemaMap[k].summary_field}/show?id=${text(v)}`
+          })
+          : text(v)
         return typeof v !== "object" || !v
           ? ""
           : table(
@@ -180,7 +185,7 @@ const json = {
             Object.entries(v).map(([k, v]) =>
               tr(
                 th(k),
-                td(v === false ? "false" : text(v) + showUnits(schemaMap, k))
+                td(v === false ? "false" : showVal(k, v) + showUnits(schemaMap, k))
               )
             )
           );
