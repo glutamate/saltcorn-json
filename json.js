@@ -53,6 +53,14 @@ function validID(s) {
     : s;
 }
 const encode = (s) => (s ? encodeURIComponent(s).replace(/'/g, "%27") : s);
+
+const showVal = (hasSchema, schemaMap, k, v) => hasSchema && (schemaMap[k]?.type || "").startsWith("Key to ")
+  ? span({
+    "data-source-url": `/field/show-calculated/${schemaMap[k].type.replace("Key to ", "")
+      }/${schemaMap[k].summary_field}/show?id=${text(v)}`
+  })
+  : text(v)
+
 const json = {
   name: "JSON",
   sql_name: "jsonb",
@@ -85,14 +93,14 @@ const json = {
           ];
       },
       run: (v, req, options) => {
-        const { schemaMap } = getSchemaMap(options);
-        if (
-          options &&
-          options.key &&
+        const { hasSchema, schemaMap } = getSchemaMap(options);
+        const k = options && options.key
+
+        if (k &&
           v &&
           typeof v[options.key] !== "undefined"
         )
-          return text_attr(v[options.key]) + showUnits(schemaMap, options.key);
+          return showVal(hasSchema, schemaMap, k, v[k]) + showUnits(schemaMap, k);
         else return "";
       },
     },
@@ -172,12 +180,7 @@ const json = {
       isEdit: false,
       run: (v, req, options) => {
         const { hasSchema, schemaMap } = getSchemaMap(options);
-        const showVal = (k, v) => hasSchema && (schemaMap[k]?.type || "").startsWith("Key to ")
-          ? span({
-            "data-source-url": `/field/show-calculated/${schemaMap[k].type.replace("Key to ", "")
-              }/${schemaMap[k].summary_field}/show?id=${text(v)}`
-          })
-          : text(v)
+
         return typeof v !== "object" || !v
           ? ""
           : table(
@@ -185,7 +188,7 @@ const json = {
             Object.entries(v).map(([k, v]) =>
               tr(
                 th(k),
-                td(v === false ? "false" : showVal(k, v) + showUnits(schemaMap, k))
+                td(v === false ? "false" : showVal(hasSchema, schemaMap, k, v) + showUnits(schemaMap, k))
               )
             )
           );
