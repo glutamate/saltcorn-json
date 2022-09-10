@@ -264,14 +264,23 @@ const json = {
                   option({ selected: !(val) }, ""),
                   schemaMap[k].options.split(",").map(o => option({ selected: val === o.trim() }, o.trim()))
                 )
-                : input({
-                  type: "text",
-                  class: "json_value",
-                  onChange: `jsonTableEdit('${encode(
-                    nm
-                  )}', '${rndid}')`,
-                  value: val,
-                }) + showUnits(schemaMap, k)
+                : schemaMap[k]?.type === "Integer" || schemaMap[k]?.type === "Float"
+                  ? input({
+                    type: "number",
+                    class: "json_value",
+                    onChange: `jsonTableEdit('${encode(
+                      nm
+                    )}', '${rndid}')`,
+                    value: val,
+                  }) + showUnits(schemaMap, k)
+                  : input({
+                    type: "text",
+                    class: "json_value",
+                    onChange: `jsonTableEdit('${encode(
+                      nm
+                    )}', '${rndid}')`,
+                    value: val,
+                  }) + showUnits(schemaMap, k)
         return (
           script(
             domReady(

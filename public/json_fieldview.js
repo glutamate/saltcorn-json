@@ -86,7 +86,8 @@ function jsonTableEdit(nm0, rndid) {
           )}', '${rndid}')">`
         );
     } else {
-      const elemVal = velem.val();
+      let elemVal = velem.val();
+      if (velem.attr("type") === "number" && elemVal) elemVal = +elemVal
       if (elemVal !== "" || typeof obj[k] !== "undefined") obj[k] = elemVal;
       if (velem.attr("type") === "checkbox")
         velem.replaceWith(
