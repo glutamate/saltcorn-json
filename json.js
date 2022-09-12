@@ -181,6 +181,7 @@ const json = {
                 onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
                   attrs.key
                 )}')`,
+                step: hasSchema && schemaMap[attrs.key]?.type === "Float" ? "any" : false,
                 value: v ? v[attrs.key] || "" : "",
                 checked:
                   hasSchema &&
@@ -299,6 +300,7 @@ const json = {
                     onChange: `jsonTableEdit('${encode(
                       nm
                     )}', '${rndid}')`,
+                    step: hasSchema && schemaMap[k]?.type === "Float" ? "any" : false,
                     value: val,
                   }) + showUnits(schemaMap, k)
                   : input({
