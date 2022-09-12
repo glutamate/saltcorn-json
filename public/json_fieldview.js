@@ -109,9 +109,9 @@ function jsonTableEdit(nm0, rndid) {
     .each(function (i, calcInput) {
       const fml = decodeURIComponent($(calcInput).attr("data-formula"))
       const val = new Function(
-        `{${Object.keys(obj).join(",")}}`,
+        `{${Object.keys(obj).map(validID).join(",")}}, ${nm}, json_value`,
         "return " + fml
-      )(obj);
+      )(obj, obj, obj);
       $(calcInput).val(val)
       obj[$(calcInput).attr("data-key")] = val
     })
