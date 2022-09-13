@@ -32,6 +32,16 @@ function initJsonTableEdit(nm, rndid, v) {
     </textarea>
     `);
   }
+  if ($().select2)
+    $(`#table-edit-${validID(nm)}-${rndid}`)
+      .find('select.json_fkey_field')
+      .each(function (i, e) {
+        $(e).select2({
+          width: '100%', dropdownParent: $(e).parent(),
+        })
+      })
+
+
 }
 
 function jsonSubfieldEdit(nm0, key0) {

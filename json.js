@@ -266,7 +266,7 @@ const json = {
             })
             : (schemaMap[k]?.type || "").startsWith("Key to ")
               ? select({
-                class: "json_value",
+                class: "json_value json_fkey_field",
                 onChange: `jsonTableEdit('${encode(
                   nm
                 )}', '${rndid}')`,
