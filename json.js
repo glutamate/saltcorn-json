@@ -152,7 +152,7 @@ const json = {
               schemaMap[k].options.split(",").map(o => option({ selected: v?.[attrs.key] === o.trim() }, o.trim()))
             ) : hasSchema && (schemaMap[attrs.key]?.type || "").startsWith("Key to")
               ? select({
-                class: `json_subfield_edit_${validID(nm)}`,
+                class: `json_subfield_edit_${validID(nm)} json_fkey_field`,
                 "data-subfield": encode(k),
                 id: `json_subfield_${validID(nm)}_${validID(k)}`,
                 onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(

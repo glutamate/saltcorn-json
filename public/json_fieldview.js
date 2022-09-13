@@ -21,6 +21,11 @@ function initJsonSubfieldEdit(nm, v, key) {
     </textarea>
     `);
   }
+  if ($e.hasClass('json_fkey_field') && $().select2)
+    $(e).select2({
+      width: '100%', dropdownParent: $(e).parent(),
+    })
+
 }
 
 function initJsonTableEdit(nm, rndid, v) {
