@@ -131,6 +131,7 @@ function jsonTableEdit(nm0, rndid) {
         $(calcInput).val(val)
         obj[$(calcInput).attr("data-key")] = val
       } catch (e) {
+        console.error({ fml, obj, nm, e })
         notifyAlert({ type: "danger", text: e.toString() })
       }
     })
