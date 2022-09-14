@@ -123,12 +123,16 @@ function jsonTableEdit(nm0, rndid) {
   $(`#table-edit-${encodeURIComponent(nm)}-${rndid} input.json_calculation`)
     .each(function (i, calcInput) {
       const fml = decodeURIComponent($(calcInput).attr("data-formula"))
-      const val = new Function(
-        `{${Object.keys(obj).map(validID).join(",")}}, ${nm}, json_value`,
-        "return " + fml
-      )(obj, obj, obj);
-      $(calcInput).val(val)
-      obj[$(calcInput).attr("data-key")] = val
+      try {
+        const val = new Function(
+          `{${Object.keys(obj).map(validID).join(",")}}, ${nm}, json_value`,
+          "return " + fml
+        )(obj, obj, obj);
+        $(calcInput).val(val)
+        obj[$(calcInput).attr("data-key")] = val
+      } catch (e) {
+        notifyAlert({ type: "danger", text: e.toString() })
+      }
     })
 
   const s = JSON.stringify(obj);
