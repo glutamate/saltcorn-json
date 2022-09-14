@@ -12,6 +12,14 @@ function validID(s) {
       .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
     : s;
 }
+function validJSID(s) {
+  return s
+    ? s
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/\W/g, '')
+    : s;
+}
 function initJsonSubfieldEdit(nm, v, key) {
   const $e = $(`#input${validID(nm)}`);
   if ($e.length < 1) {
@@ -125,7 +133,7 @@ function jsonTableEdit(nm0, rndid) {
       const fml = decodeURIComponent($(calcInput).attr("data-formula"))
       try {
         const val = new Function(
-          `{${Object.keys(obj).map(validID).join(",")}}, ${nm}, json_value`,
+          `{${Object.keys(obj).map(validJSID).join(",")}}, ${nm}, json_value`,
           "return " + fml
         )(obj, obj, obj);
         $(calcInput).val(val)
