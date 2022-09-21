@@ -29,9 +29,9 @@ function initJsonSubfieldEdit(nm, v, key) {
     </textarea>
     `);
   }
-  /*if ($e.hasClass('json_fkey_field') && $().selectize)
+  if ($e.hasClass('json_fkey_field') && $().selectize)
     $(e).selectize()
-  else*/ if ($e.hasClass('json_fkey_field') && $().select2)
+  else if ($e.hasClass('json_fkey_field') && $().select2)
     $(e).select2({
       width: '100%', dropdownParent: $(e).parent(),
     })
@@ -47,14 +47,14 @@ function initJsonTableEdit(nm, rndid, v) {
     </textarea>
     `);
   }
-  /*if ($().selectize)
+  if ($().selectize)
     $(`#table-edit-${validID(nm)}-${rndid}`)
       .find('select.json_fkey_field')
       .each(function (i, e) {
         console.log("init selectize", e);
         $(e).selectize()
       })
-  else */if ($().select2)
+  else if ($().select2)
     $(`#table-edit-${validID(nm)}-${rndid}`)
       .find('select.json_fkey_field')
       .each(function (i, e) {
