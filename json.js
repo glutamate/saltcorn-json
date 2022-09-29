@@ -422,7 +422,7 @@ const json = {
           ];
       },
       expandColumns: (field, attributes, column) => {
-        const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+        const { hasSchema, schemaKeys, schemaMap } = getSchemaMap(field.attributes);
         let field_name = column.field_name;
 
         if (!field_name && column.join_field) {
@@ -435,7 +435,7 @@ const json = {
           row_key: [field_name, k],
           key: (r) =>
             field_name && typeof r[field_name]?.[k] !== "undefined"
-              ? r[field_name]?.[k]
+              ? showVal(hasSchema, schemaMap, k, r[field_name]?.[k])
               : "",
         });
         return hasSchema
