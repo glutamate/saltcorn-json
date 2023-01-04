@@ -1,3 +1,6 @@
+/* eslint-env browser */
+/* globals notifyAlert, $ */
+
 function getSchemaMap(nm) {
   const s = $(`.table-edit-${nm}`).attr("data-schema-map");
   if (s) return JSON.parse(decodeURIComponent(s));
@@ -7,17 +10,17 @@ function getSchemaMap(nm) {
 function validID(s) {
   return s
     ? s
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/^[^a-z]+|[^\w:.-]+/gi, "")
     : s;
 }
 function validJSID(s) {
   return s
     ? s
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/\W/g, '')
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\W/g, "")
     : s;
 }
 function initJsonSubfieldEdit(nm, v, key) {
@@ -29,13 +32,12 @@ function initJsonSubfieldEdit(nm, v, key) {
     </textarea>
     `);
   }
-  if ($e.hasClass('json_fkey_field') && $().selectize)
-    $(e).selectize()
-  else if ($e.hasClass('json_fkey_field') && $().select2)
-    $(e).select2({
-      width: '100%', dropdownParent: $(e).parent(),
-    })
-
+  if ($e.hasClass("json_fkey_field") && $().selectize) $e.selectize();
+  else if ($e.hasClass("json_fkey_field") && $().select2)
+    $e.select2({
+      width: "100%",
+      dropdownParent: $e.parent(),
+    });
 }
 
 function initJsonTableEdit(nm, rndid, v) {
@@ -49,21 +51,20 @@ function initJsonTableEdit(nm, rndid, v) {
   }
   if ($().selectize)
     $(`#table-edit-${validID(nm)}-${rndid}`)
-      .find('select.json_fkey_field')
+      .find("select.json_fkey_field")
       .each(function (i, e) {
         console.log("init selectize", e);
-        $(e).selectize()
-      })
+        $(e).selectize();
+      });
   else if ($().select2)
     $(`#table-edit-${validID(nm)}-${rndid}`)
-      .find('select.json_fkey_field')
+      .find("select.json_fkey_field")
       .each(function (i, e) {
         $(e).select2({
-          width: '100%', dropdownParent: $(e).parent(),
-        })
-      })
-
-
+          width: "100%",
+          dropdownParent: $(e).parent(),
+        });
+      });
 }
 
 function jsonSubfieldEdit(nm0, key0) {
@@ -73,7 +74,7 @@ function jsonSubfieldEdit(nm0, key0) {
   try {
     const valStr = $(`#input${validID(nm)}`).val();
     obj = JSON.parse(valStr);
-  } catch { }
+  } catch {}
   const $e = $(`#json_subfield_${validID(nm)}_${validID(key)}`);
   obj[key] = $e.attr("type") === "checkbox" ? $e.prop("checked") : $e.val();
   const s = JSON.stringify(obj);
@@ -119,7 +120,7 @@ function jsonTableEdit(nm0, rndid) {
         );
     } else {
       let elemVal = velem.val();
-      if (velem.attr("type") === "number" && elemVal) elemVal = +elemVal
+      if (velem.attr("type") === "number" && elemVal) elemVal = +elemVal;
       if (elemVal !== "" || typeof obj[k] !== "undefined") obj[k] = elemVal;
       if (velem.attr("type") === "checkbox")
         velem.replaceWith(
@@ -130,28 +131,29 @@ function jsonTableEdit(nm0, rndid) {
     }
   });
   $(`.json_subfield_edit_${validID(nm)}`).each(function (index, item) {
-    let val = $(item).attr("type") === "checkbox"
-      ? $(item).prop("checked")
-      : $(item).val();
-    if ($(item).attr("type") === "number" && val) val = +val
+    let val =
+      $(item).attr("type") === "checkbox"
+        ? $(item).prop("checked")
+        : $(item).val();
+    if ($(item).attr("type") === "number" && val) val = +val;
     obj[decodeURIComponent($(item).attr("data-subfield"))] = val;
-
   });
-  $(`#table-edit-${encodeURIComponent(nm)}-${rndid} input.json_calculation`)
-    .each(function (i, calcInput) {
-      const fml = decodeURIComponent($(calcInput).attr("data-formula"))
-      try {
-        const val = new Function(
-          `{${Object.keys(obj).map(validJSID).join(",")}}, ${nm}, json_value`,
-          "return " + fml
-        )(obj, obj, obj);
-        $(calcInput).val(val)
-        obj[$(calcInput).attr("data-key")] = val
-      } catch (e) {
-        console.error({ fml, obj, nm, e })
-        notifyAlert({ type: "danger", text: e.toString() })
-      }
-    })
+  $(
+    `#table-edit-${encodeURIComponent(nm)}-${rndid} input.json_calculation`
+  ).each(function (i, calcInput) {
+    const fml = decodeURIComponent($(calcInput).attr("data-formula"));
+    try {
+      const val = new Function(
+        `{${Object.keys(obj).map(validJSID).join(",")}}, ${nm}, json_value`,
+        "return " + fml
+      )(obj, obj, obj);
+      $(calcInput).val(val);
+      obj[$(calcInput).attr("data-key")] = val;
+    } catch (e) {
+      console.error({ fml, obj, nm, e });
+      notifyAlert({ type: "danger", text: e.toString() });
+    }
+  });
 
   const s = JSON.stringify(obj);
   console.log("edit to", s);
@@ -169,34 +171,35 @@ function jsonTableAddRow(nm, rndid) {
   const keyInput =
     schemaMap && !schemaMap._all_keys
       ? `<select class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}', '${rndid}')">
+          nm
+        )}', '${rndid}')">
         ${schemaKeys.map((k) => `<option>${k}</option>`).join("")}
         ${allowUserDefined ? `<option>Other...</option>` : ""}
-       </select>${allowUserDefined
-        ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${encodeURIComponent(
-          nm
-        )}', '${rndid}')" value="">`
-        : ""
-      }`
+       </select>${
+         allowUserDefined
+           ? `<input type="hidden" class="json_key_other d-block" onchange="jsonTableEdit('${encodeURIComponent(
+               nm
+             )}', '${rndid}')" value="">`
+           : ""
+       }`
       : `<input type="text" class="json_key" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}', '${rndid}')" value="">`;
+          nm
+        )}', '${rndid}')" value="">`;
   const valInput =
     schemaMap && schemaMap[schemaKeys[0]].type === "Bool"
       ? `<input type="checkbox" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}', '${rndid}')">`
+          nm
+        )}', '${rndid}')">`
       : `<input type="text" class="json_value" onchange="jsonTableEdit('${encodeURIComponent(
-        nm
-      )}', '${rndid}')" value="">`;
+          nm
+        )}', '${rndid}')" value="">`;
   $(`#table-edit-${encodeURIComponent(nm)}-${rndid}`).append(`
   <tr>
     <td>${keyInput}</td>
     <td>${valInput}<span class="units"></span></td>
     <td><i class="fas fa-times" onclick="jsonTableDeleteRow('${encodeURIComponent(
-    nm
-  )}','${rndid}', this)"></i></td>
+      nm
+    )}','${rndid}', this)"></i></td>
   </tr>
   `);
 }
