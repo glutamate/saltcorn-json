@@ -209,24 +209,44 @@ const json = {
     },
     show_table: {
       isEdit: false,
+      configFields: (field) => {
+        const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
+        return hasSchema
+          ? [
+              {
+                name: "include_keys",
+                label: "Keys",
+                sublabel: "Comma separated. Leave blank for all keys.",
+                type: "String",
+              },
+            ]
+          : [];
+      },
       run: (v, req, options) => {
         const { hasSchema, schemaMap } = getSchemaMap(options);
-
+        const ok_keys = options?.include_keys
+          ? new Set(options.include_keys.split(",").map((s) => s.trim()))
+          : null;
+        const key_filter = options?.include_keys
+          ? ([k, v]) => ok_keys.has(k)
+          : (kv) => true;
         return typeof v !== "object" || !v
           ? ""
           : table(
               { class: "table table-sm" },
-              Object.entries(v).map(([k, v]) =>
-                tr(
-                  th(k),
-                  td(
-                    v === false
-                      ? "false"
-                      : showVal(hasSchema, schemaMap, k, v) +
-                          showUnits(schemaMap, k)
+              Object.entries(v)
+                .filter(key_filter)
+                .map(([k, v]) =>
+                  tr(
+                    th(k),
+                    td(
+                      v === false
+                        ? "false"
+                        : showVal(hasSchema, schemaMap, k, v) +
+                            showUnits(schemaMap, k)
+                    )
                   )
                 )
-              )
             );
       },
     },
