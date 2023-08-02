@@ -1,6 +1,6 @@
 {
   "name": "@saltcorn/json",
-  "version": "0.3.9",
+  "version": "0.3.10",
   "description": "JSON field plugin",
   "main": "json.js",
   "dependencies": {
