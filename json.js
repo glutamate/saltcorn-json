@@ -432,11 +432,20 @@ const json = {
         const { hasSchema, schemaKeys } = getSchemaMap(field.attributes);
 
         return hasSchema
-          ? schemaKeys.map((k) => ({
-              name: k,
-              label: k,
-              type: "Bool",
-            }))
+          ? [
+              {
+                name: "_all_keys",
+                label: "All keys",
+                type: "Bool",
+                default: true,
+              },
+              ...schemaKeys.map((k) => ({
+                name: k,
+                label: k,
+                type: "Bool",
+                showIf: { _all_keys: false },
+              })),
+            ]
           : [
               {
                 name: "keys",
@@ -467,7 +476,9 @@ const json = {
         });
 
         return hasSchema
-          ? schemaKeys.filter((k) => attributes[k]).map(getCol)
+          ? schemaKeys
+              .filter((k) => attributes._all_keys || attributes[k])
+              .map(getCol)
           : (attributes.keys || "")
               .split()
               .map((s) => s.trim())
