@@ -443,7 +443,6 @@ const json = {
                 name: k,
                 label: k,
                 type: "Bool",
-                showIf: { _all_keys: false },
               })),
             ]
           : [
