@@ -67,7 +67,7 @@ function initJsonTableEdit(nm, rndid, v) {
       });
 }
 
-function jsonSubfieldEdit(nm0, key0) {
+function jsonSubfieldEdit(nm0, key0, elem) {
   const nm = decodeURIComponent(nm0);
   const key = decodeURIComponent(key0);
   let obj = {};
@@ -75,7 +75,9 @@ function jsonSubfieldEdit(nm0, key0) {
     const valStr = $(`#input${validID(nm)}`).val();
     obj = JSON.parse(valStr);
   } catch {}
-  const $e = $(`#json_subfield_${validID(nm)}_${validID(key)}`);
+  const $e = elem
+    ? $(elem)
+    : $(`#json_subfield_${validID(nm)}_${validID(key)}`);
   obj[key] = $e.attr("type") === "checkbox" ? $e.prop("checked") : $e.val();
   const s = JSON.stringify(obj);
   $(`#input${validID(nm)}`).val(s);

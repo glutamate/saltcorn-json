@@ -146,7 +146,7 @@ const json = {
                   id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
                   onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
                     attrs.key
-                  )}')`,
+                  )}', this)`,
                   value: v ? v[k] || "" : "",
                 },
                 option({ selected: !v?.[k] }, ""),
@@ -162,7 +162,9 @@ const json = {
                 class: `json_subfield_edit_${validID(nm)} json_fkey_field`,
                 "data-subfield": encode(k),
                 id: `json_subfield_${validID(nm)}_${validID(k)}`,
-                onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(k)}')`,
+                onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
+                  k
+                )}', this)`,
                 value: v ? v[k] || "" : "",
                 "data-selected": v ? v[k] || "" : "",
                 "data-fetch-options": encodeURIComponent(
@@ -187,7 +189,7 @@ const json = {
                 id: `json_subfield_${validID(nm)}_${validID(attrs.key)}`,
                 onChange: `jsonSubfieldEdit('${encode(nm)}', '${encode(
                   attrs.key
-                )}')`,
+                )}', this)`,
                 step:
                   hasSchema && schemaMap[attrs.key]?.type === "Float"
                     ? "any"
