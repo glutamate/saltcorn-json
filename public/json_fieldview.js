@@ -73,7 +73,7 @@ function jsonSubfieldEdit(nm0, key0, elem) {
   let obj = {};
   try {
     const valStr = $(`#input${validID(nm)}`).val();
-    obj = JSON.parse(valStr);
+    obj = JSON.parse(valStr) || {};
   } catch {}
   const $e = elem
     ? $(elem)
