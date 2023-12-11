@@ -475,11 +475,11 @@ const json = {
               ? showVal(hasSchema, schemaMap, k, r[field_name]?.[k])
               : "",
         });
-
+        const ok_keys =
+          hasSchema &&
+          schemaKeys.filter((k) => attributes._all_keys || attributes[k]);
         return hasSchema
-          ? schemaKeys
-              .filter((k) => attributes._all_keys || attributes[k])
-              .map(getCol)
+          ? (ok_keys.length === 0 ? schemaKeys : ok_keys).map(getCol)
           : (attributes.keys || "")
               .split()
               .map((s) => s.trim())
