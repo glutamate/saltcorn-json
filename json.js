@@ -714,7 +714,7 @@ const json = {
         try {
           return alignSchema(JSON.parse(v));
         } catch {
-          return undefined;
+          return v;
         }
       default:
         return alignSchema(v);
