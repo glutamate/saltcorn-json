@@ -21,6 +21,7 @@ const {
 } = require("@saltcorn/markup/tags");
 const FieldRepeat = require("@saltcorn/data/models/fieldrepeat");
 const { features, getState } = require("@saltcorn/data/db/state");
+const { interpolate } = require("@saltcorn/data/utils");
 
 const getSchemaMap = (attrs) => {
   const schemaMap = {};
@@ -62,6 +63,25 @@ const showVal = (hasSchema, schemaMap, k, v) =>
         )}/${schemaMap[k].summary_field}/show?id=${text(v)}`,
       })
     : text(v);
+
+const show_with_html = {
+  configFields: [
+    {
+      input_type: "code",
+      name: "code",
+      label: "HTML",
+      sublabel: "Access the value with <code>{{ it }}</code>.",
+      default: "",
+      attributes: { mode: "text/html" },
+    },
+  ],
+  isEdit: false,
+  description: "Show value with any HTML code",
+  run: (v, req, attrs = {}) => {
+    const rendered = interpolate(attrs?.code, { it: v }, req?.user);
+    return rendered;
+  },
+};
 
 const json = {
   name: "JSON",
@@ -609,6 +629,7 @@ const json = {
           },
         }
       : {}),
+    show_with_html,
   },
   attributes:
     features && features.fieldrepeats_in_field_attributes
