@@ -74,7 +74,10 @@ function jsonSubfieldEdit(nm0, key0, elem) {
   try {
     const valStr = $(`#input${validID(nm)}`).val();
     obj = JSON.parse(valStr) || {};
-  } catch {}
+  } catch (err) {
+    console.error("JSON edit parse error", err);
+    console.error("Existing value string", $(`#input${validID(nm)}`).val());
+  }
   const $e = elem
     ? $(elem)
     : $(`#json_subfield_${validID(nm)}_${validID(key)}`);
