@@ -28,7 +28,7 @@ function initJsonSubfieldEdit(nm, v, key) {
   if ($e.length < 1) {
     $(`#json_subfield_${validID(nm)}_${validID(key)}`).closest("form").append(`
     <textarea name="${validID(nm)}" class="d-none" id="input${validID(nm)}">
-    ${typeof v === "undefined" ? "" : JSON.stringify(v)}
+    ${typeof v === "undefined" ? "{}" : JSON.stringify(v)}
     </textarea>
     `);
   }
@@ -45,7 +45,7 @@ function initJsonTableEdit(nm, rndid, v) {
   if ($e.length < 1) {
     $(`#table-edit-${validID(nm)}-${rndid}`).closest("form").append(`
     <textarea name="${validID(nm)}" class="d-none" id="input${validID(nm)}">
-    ${typeof v === "undefined" ? "" : JSON.stringify(v)}
+    ${typeof v === "undefined" ? "{}" : JSON.stringify(v)}
     </textarea>
     `);
   }
