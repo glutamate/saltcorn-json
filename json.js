@@ -757,4 +757,5 @@ module.exports = {
       }/json_fieldview.js`,
     },
   ],
+  ready_for_mobile: true,
 };
